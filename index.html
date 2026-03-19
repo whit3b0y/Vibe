@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melt Protocol — RWA Spot Volume & Revenue Projection</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0f0e;--card:#0f1a18;--border:#1a2e2a;--cyan:#00E8D8;--text:#c8e0dc;--dim:#4a6b65;--gold:#f5a623;--red:#ff6b6b;--green:#90ee90}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'JetBrains Mono','Fira Code','SF Mono',monospace;background:var(--bg);color:var(--text);padding:24px;line-height:1.5}
+.container{max-width:1400px;margin:0 auto}
+h1{font-size:22px;color:#fff;margin-bottom:4px}
+h2{font-size:15px;color:var(--cyan);margin-bottom:16px;letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.subtitle{font-size:11px;color:var(--dim);letter-spacing:.2em}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px}
+.card-title{font-size:10px;color:var(--dim);letter-spacing:.2em;margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.stat-box{background:#050d0b;border-radius:6px;padding:12px;border:1px solid var(--border)}
+.stat-label{font-size:10px;color:var(--dim);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:700;color:var(--cyan)}
+.stat-value.gold{color:var(--gold)}
+.stat-value.green{color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:8px 10px;color:var(--dim);border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.1em;font-weight:400}
+td{padding:7px 10px;border-bottom:1px solid #0f1f1c}
+tr:hover{background:#0a1512}
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;letter-spacing:.05em}
+.tag-stock{background:#0a1a2a;color:var(--cyan);border:1px solid #1a2a3a}
+.tag-etf{background:#0a2a0a;color:var(--green);border:1px solid #1a3a1a}
+.tag-commodity{background:#2a1a0a;color:var(--gold);border:1px solid #3a2a1a}
+.tag-crypto{background:#1a0a2a;color:#c89eff;border:1px solid #2a1a3a}
+input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer;margin:4px 0}
+select{width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:5px 8px;border-radius:4px;cursor:pointer;font-family:inherit}
+.slider-row{margin-bottom:10px}
+.slider-header{display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px}
+.slider-val{color:var(--cyan);font-weight:700}
+.section{margin-bottom:40px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);display:inline-block;margin-right:8px}
+.chart-container{position:relative;height:250px;margin-top:10px}
+.toggle{width:36px;height:20px;border-radius:10px;cursor:pointer;position:relative;transition:background .2s;display:inline-block}
+.toggle.on{background:var(--cyan)}
+.toggle.off{background:#1a2e2a}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;transition:left .2s}
+.toggle.on::after{left:18px}
+.toggle.off::after{left:2px}
+.constraint{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#050d0b;border-radius:6px;margin-bottom:6px;border:1px solid var(--border)}
+.constraint-icon{font-size:16px}
+.constraint-text{font-size:11px;color:var(--dim)}
+.constraint-mult{font-size:12px;color:var(--gold);font-weight:700;margin-left:auto}
+.info-box{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:6px;padding:10px 14px;font-size:11px;margin-bottom:14px}
+.btn{padding:5px 14px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--dim);border-radius:4px;font-family:inherit;letter-spacing:.1em}
+.btn.active{border-color:var(--cyan);background:rgba(0,232,216,.08);color:var(--cyan)}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.ratio-highlight{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:6px;padding:8px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div style="margin-bottom:28px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <span class="dot"></span>
+    <span class="subtitle">MELT PROTOCOL · RWA SPOT VOLUME & REVENUE PROJECTION</span>
+  </div>
+  <h1>Tokenized RWA Spot Projection — Hyperliquid HIP-1</h1>
+  <p style="font-size:11px;color:var(--dim);margin-top:6px">
+    Estimation du volume spot atteignable pour les tokenized stocks, ETFs et commodities sur Melt · Data: Dune Analytics + Hyperliquid API
+  </p>
+</div>
+
+<!-- ==================== SECTION 1: RATIO PERP/SPOT ==================== -->
+<div class="section" id="section-ratios">
+  <h2><span class="dot"></span>1 · Ratio Spot / Perp — Benchmarks Crypto</h2>
+  <div class="info-box">
+    <span style="color:var(--green)">Logique :</span>
+    <span style="color:var(--dim)">Les RWA assets existent en perp sur HIP-3 (Melt). En observant le ratio spot/perp sur les crypto natives (BTC, ETH, SOL) on estime le volume spot "naturel" que les RWA devraient générer une fois listés en spot.</span>
+  </div>
+
+  <!-- Crypto benchmark ratios — LIVE HL API DATA -->
+  <div class="card">
+    <div class="card-title">RATIO SPOT / PERP — TOP 5 CRYPTO SUR HYPERLIQUID (LIVE)</div>
+    <table>
+      <thead>
+        <tr><th>ASSET</th><th>PERP VOL 24H (HL)</th><th>SPOT VOL 24H (CoinGecko global)</th><th>RATIO S/P GLOBAL</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#fff;font-weight:600">BTC <span class="tag tag-crypto">CRYPTO</span></td>
+          <td>$2.55B</td>
+          <td>$18.5B</td>
+          <td style="color:var(--green);font-weight:700">~25-30%</td>
+        </tr>
+        <tr>
+          <td style="color:#fff;font-weight:600">ETH <span class="tag tag-crypto">CRYPTO</span></td>
+          <td>$1.39B</td>
+          <td>$8.2B</td>
+          <td style="color:var(--green);font-weight:700">~20-25%</td>
+        </tr>
+        <tr>
+          <td style="color:#fff;font-weight:600">SOL <span class="tag tag-crypto">CRYPTO</span></td>
+          <td>$259M</td>
+          <td>$1.8B</td>
+          <td style="color:var(--green);font-weight:700">~22%</td>
+        </tr>
+        <tr>
+          <td style="color:#fff;font-weight:600">HYPE <span class="tag tag-crypto">CRYPTO</span></td>
+          <td>$468M</td>
+          <td>$120M</td>
+          <td style="color:var(--gold);font-weight:700">~25%</td>
+        </tr>
+        <tr>
+          <td style="color:#fff;font-weight:600">XRP <span class="tag tag-crypto">CRYPTO</span></td>
+          <td>$55.5M</td>
+          <td>$1.2B</td>
+          <td style="color:var(--green);font-weight:700">~30%</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr style="border-top:2px solid var(--border)">
+          <td style="color:var(--dim)">PAXG (Gold proxy)</td>
+          <td>$14.5M</td>
+          <td>$45M</td>
+          <td style="color:var(--green);font-weight:700">~30%</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="margin-top:8px;font-size:10px;color:var(--dim)">
+      HL n'a pas de spot RWA natif — le ratio HL spot/perp global est utilisé comme proxy pour estimer le potentiel spot des RWA.
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="stat-box">
+      <div class="stat-label">RATIO S/P GLOBAL CRYPTO</div>
+      <div class="stat-value">~25%</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Moy. BTC+ETH+SOL tous exchanges</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">RATIO S/P HYPERLIQUID</div>
+      <div class="stat-value gold">3.4%</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">$180M spot / $5.28B perp (live)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">PAXG S/P (GOLD PROXY)</div>
+      <div class="stat-value green">~30%</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Commodités = ratio spot élevé</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">RATIO POUR PROJECTION</div>
+      <div class="stat-value" style="color:#fff" id="ratio-used">3-25%</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Ajustable section 3</div>
+    </div>
+  </div>
+
+  <!-- RWA Perp pairs on HIP-3 -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">RWA PERP PAIRS SUR HIP-3 (MELT) — VOLUMES ESTIMÉS</div>
+    <div class="info-box" style="margin-bottom:10px">
+      <span style="color:var(--gold)">Note :</span>
+      <span style="color:var(--dim)">Les RWA perps ne sont pas sur HL natif mais sur HIP-3 DEXes (Melt, Felix, etc.). Les volumes ci-dessous sont les estimations des perps RWA tradés sur ces plateformes.</span>
+    </div>
+    <table>
+      <thead><tr><th>PERP TICKER (HIP-3)</th><th>ONDO EQUIVALENT</th><th>VOL PERP 24H (EST.)</th><th>TYPE</th><th>COMPARAISON</th></tr></thead>
+      <tbody id="rwa-perp-table"></tbody>
+    </table>
+  </div>
+
+  <!-- RWA Provider comparison — rwa.xyz live data 03/18/2026 -->
+  <div class="card">
+    <div class="card-title">TOKENIZED STOCKS — LEAGUE TABLE (SOURCE: RWA.XYZ · 03/18/2026)</div>
+    <table>
+      <thead><tr><th>#</th><th>PLATEFORME</th><th>RWA COUNT</th><th>TOTAL VALUE</th><th>30D %</th><th>MARKET SHARE</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td style="color:#fff;font-weight:600">Ondo</td><td>263</td><td style="color:var(--cyan)">$656.5M</td><td style="color:var(--green)">+18.82%</td><td style="font-weight:700">60.19%</td></tr>
+        <tr><td>2</td><td style="color:#fff;font-weight:600">xStocks (BackedFi)</td><td>75</td><td>$262.7M</td><td style="color:var(--green)">+22.46%</td><td>24.08%</td></tr>
+        <tr><td>3</td><td style="color:#fff;font-weight:600">Securitize</td><td>1</td><td>$83.0M</td><td style="color:var(--red)">-18.01%</td><td>7.61%</td></tr>
+        <tr><td>4</td><td style="color:#fff;font-weight:600">Superstate Opening Bell</td><td>3</td><td>$30.8M</td><td style="color:var(--green)">+28.25%</td><td>2.82%</td></tr>
+        <tr><td>5</td><td style="color:#fff;font-weight:600">WisdomTree</td><td>6</td><td>$22.8M</td><td style="color:var(--dim)">+0.06%</td><td>2.09%</td></tr>
+        <tr><td>6</td><td style="color:#fff;font-weight:600">Robinhood</td><td>1591</td><td>$15.5M</td><td style="color:var(--green)">+5.48%</td><td>1.42%</td></tr>
+        <tr><td>7</td><td style="color:#fff;font-weight:600">STOKR</td><td>2</td><td>$8.6M</td><td style="color:var(--green)">+17.52%</td><td>0.79%</td></tr>
+        <tr><td>8</td><td style="color:#fff;font-weight:600">Backed Finance</td><td>3</td><td>$5.3M</td><td style="color:var(--green)">+7.87%</td><td>0.49%</td></tr>
+        <tr><td>9</td><td style="color:#fff;font-weight:600">Dinari</td><td>89</td><td>$3.0M</td><td style="color:var(--green)">+6.20%</td><td>0.27%</td></tr>
+        <tr><td>10</td><td style="color:#fff;font-weight:600">Remora Markets</td><td>5</td><td>$1.8M</td><td style="color:var(--red)">-56.46%</td><td>0.16%</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap">
+      <div class="stat-box" style="flex:1;min-width:200px">
+        <div class="stat-label">TOTAL TOKENIZED STOCKS (MCAP)</div>
+        <div class="stat-value" style="font-size:18px">$1.09B</div>
+        <div style="font-size:10px;color:var(--green)">+14.86% sur 30j</div>
+      </div>
+      <div class="stat-box" style="flex:1;min-width:200px">
+        <div class="stat-label">MONTHLY TRANSFER VOLUME (STOCKS)</div>
+        <div class="stat-value gold" style="font-size:18px">$2.48B</div>
+        <div style="font-size:10px;color:var(--green)">+15.34% sur 30j</div>
+      </div>
+      <div class="stat-box" style="flex:1;min-width:200px">
+        <div class="stat-label">TOKENIZED COMMODITIES (MCAP)</div>
+        <div class="stat-value green" style="font-size:18px">$7.57B</div>
+        <div style="font-size:10px;color:var(--dim)">Monthly vol: $12.34B · Gold dominant</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SECTION 2: ONDO VOLUME + CONSTRAINTS ==================== -->
+<div class="section" id="section-ondo">
+  <h2><span class="dot"></span>2 · Volume Ondo RWA Actuel + Analyse des Contraintes</h2>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title">VOLUME ONDO — RWA ASSETS ONLY (DUNE)</div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="stat-box">
+            <div class="stat-label">AVG DAILY (30D)</div>
+            <div class="stat-value" id="ondo-avg-30d">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">AVG DAILY (7D)</div>
+            <div class="stat-value gold" id="ondo-avg-7d">—</div>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="chart-ondo-daily"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">TOP RWA ASSETS PAR VOLUME</div>
+        <table>
+          <thead><tr><th>SYMBOL</th><th>TOTAL VOL</th><th>AVG 30D</th><th>AVG 7D</th></tr></thead>
+          <tbody id="ondo-top-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">CONTRAINTES ONDO — POURQUOI LE VOLUME EST LIMITÉ</div>
+        <div class="constraint"><span class="constraint-icon">🔒</span><span class="constraint-text"><strong>KYC obligatoire</strong> — Barrière d'entrée massive, exclut 80%+ des traders crypto</span><span class="constraint-mult">×3-5x</span></div>
+        <div class="constraint"><span class="constraint-icon">📊</span><span class="constraint-text"><strong>Pas de limit orders</strong> — Market orders only → pas de market making pro</span><span class="constraint-mult">×2-3x</span></div>
+        <div class="constraint"><span class="constraint-icon">🖥️</span><span class="constraint-text"><strong>Pas d'interface de trading</strong> — UX basique, pas de charts, pas d'order book</span><span class="constraint-mult">×2x</span></div>
+        <div class="constraint"><span class="constraint-icon">⛓️</span><span class="constraint-text"><strong>Pas sur Hyperliquid</strong> — Fragmenté ETH/BNB/Mantle, pas d'accès HL liquidity</span><span class="constraint-mult">×3-5x</span></div>
+        <div class="constraint"><span class="constraint-icon">⏰</span><span class="constraint-text"><strong>Horaires TradFi</strong> — Trading limité aux heures NYSE, pas 24/7</span><span class="constraint-mult">×1.5x</span></div>
+        <div class="constraint"><span class="constraint-icon">🔗</span><span class="constraint-text"><strong>Pas de composabilité DeFi</strong> — Pas d'intégration perps, lending, etc.</span><span class="constraint-mult">×2x</span></div>
+      </div>
+
+      <div class="card" style="border-color:rgba(0,232,216,.15)">
+        <div class="card-title">MULTIPLICATEUR DE VOLUME — MELT RÉSOUT TOUT</div>
+        <div class="info-box" style="background:#050d0b;border-color:var(--border)">
+          <span style="color:var(--cyan)">Melt = </span>
+          <span style="color:var(--dim)">No KYC · Limit orders · Full HL interface · On Hyperliquid L1 · 24/7 · Composable · MM by Flowdesk</span>
+        </div>
+        <div class="slider-row">
+          <div class="slider-header"><span>Multiplicateur conservateur</span><span class="slider-val" id="mult-label">5x</span></div>
+          <input type="range" id="mult-slider" min="2" max="20" step="1" value="5">
+        </div>
+        <div class="grid-3" style="margin-top:10px">
+          <button class="btn" onclick="setMult(3)">Bear (3x)</button>
+          <button class="btn active" onclick="setMult(5)">Base (5x)</button>
+          <button class="btn" onclick="setMult(10)">Bull (10x)</button>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:#050d0b;border-radius:8px;border:1px solid rgba(0,232,216,.15)">
+          <div class="stat-label">VOLUME SPOT RWA PROJETÉ (DAILY AVG)</div>
+          <div class="stat-value" id="proj-volume" style="font-size:32px">—</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:2px" id="proj-monthly">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SECTION 3: PROJECTION PER ASSET ==================== -->
+<div class="section" id="section-projection">
+  <h2><span class="dot"></span>3 · Projection de Volume par RWA Asset</h2>
+  <div class="info-box">
+    <span style="color:var(--green)">Méthode :</span>
+    <span style="color:var(--dim)">Deux approches croisées : (A) Volume Ondo × multiplicateur contraintes levées, (B) Volume perp HIP-3 × ratio spot/perp observé. Projection finale = max des deux.</span>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:14px">
+    <div class="slider-row">
+      <div class="slider-header"><span>Ratio Spot/Perp appliqué</span><span class="slider-val" id="sp-ratio-label">10%</span></div>
+      <input type="range" id="sp-ratio-slider" min="2" max="30" step="1" value="10">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="setSpRatio(3)">HL Actuel (3%)</button>
+      <button class="btn active" onclick="setSpRatio(10)">Base (10%)</button>
+      <button class="btn" onclick="setSpRatio(25)">Global Crypto (25%)</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">PROJECTION PAR RWA ASSET — TOGGLE ON/OFF</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30px">ON</th>
+          <th>ASSET</th>
+          <th>ONDO VOL (30D AVG)</th>
+          <th>× MULT</th>
+          <th>PERP VOL HIP-3</th>
+          <th>SPOT VIA RATIO</th>
+          <th>PROJECTION FINALE</th>
+        </tr>
+      </thead>
+      <tbody id="projection-table"></tbody>
+      <tfoot>
+        <tr style="border-top:2px solid var(--cyan);font-weight:700">
+          <td></td>
+          <td style="color:var(--cyan)">TOTAL RWA</td>
+          <td id="proj-total-ondo">—</td>
+          <td id="proj-total-mult">—</td>
+          <td id="proj-total-perp">—</td>
+          <td id="proj-total-ratio">—</td>
+          <td id="proj-total-final" style="color:var(--cyan);font-size:13px">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="chart-container" style="height:300px;margin-top:14px"><canvas id="chart-projection"></canvas></div>
+</div>
+
+<!-- ==================== SECTION 4: REVENUE ==================== -->
+<div class="section" id="section-revenue">
+  <h2><span class="dot"></span>4 · Projection Revenue Melt</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title">PARAMÈTRES FEES HIP-1 SPOT</div>
+        <div class="slider-row">
+          <div class="slider-header"><span>Tier de volume (taker)</span><span class="slider-val" id="tier-label">Tier 0</span></div>
+          <select id="tier-select" onchange="recalcRevenue()">
+            <option value="0">Tier 0 — base (nouveau) · T 0.070% / M 0.040%</option>
+            <option value="1">Tier 1 — >$5M 14d · T 0.060% / M 0.030%</option>
+            <option value="2">Tier 2 — >$25M 14d · T 0.050% / M 0.020%</option>
+            <option value="3">Tier 3 — >$100M 14d · T 0.040% / M 0.010%</option>
+            <option value="4">Tier 4 — >$500M 14d · T 0.035% / M 0.000%</option>
+          </select>
+        </div>
+        <div style="height:1px;background:var(--border);margin:12px 0"></div>
+        <div class="slider-row">
+          <div class="slider-header"><span>Staking discount retail (blendé)</span><span class="slider-val" id="disc-label">3%</span></div>
+          <input type="range" id="disc-slider" min="0" max="20" step="1" value="3" oninput="recalcRevenue()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-header"><span>Staking discount maker (Flowdesk)</span><span class="slider-val" id="disc-maker-label">20%</span></div>
+          <input type="range" id="disc-maker-slider" min="0" max="40" step="5" value="20" oninput="recalcRevenue()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-header"><span>Part Melt (% des fees)</span><span class="slider-val" id="melt-share-label">50%</span></div>
+          <input type="range" id="melt-share-slider" min="10" max="50" step="5" value="50" oninput="recalcRevenue()">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">SCÉNARIOS DE VOLUME</div>
+        <div class="grid-3">
+          <div class="stat-box" onclick="setScenarioVol('bear')" style="cursor:pointer" id="scen-bear">
+            <div class="stat-label">BEAR</div>
+            <div id="scen-bear-vol" class="stat-value" style="font-size:16px;color:var(--red)">—</div>
+            <div style="font-size:10px;color:var(--dim)">/ jour</div>
+          </div>
+          <div class="stat-box" onclick="setScenarioVol('base')" style="cursor:pointer;border-color:rgba(0,232,216,.25)" id="scen-base">
+            <div class="stat-label">BASE</div>
+            <div id="scen-base-vol" class="stat-value" style="font-size:16px">—</div>
+            <div style="font-size:10px;color:var(--dim)">/ jour</div>
+          </div>
+          <div class="stat-box" onclick="setScenarioVol('bull')" style="cursor:pointer" id="scen-bull">
+            <div class="stat-label">BULL</div>
+            <div id="scen-bull-vol" class="stat-value" style="font-size:16px;color:var(--green)">—</div>
+            <div style="font-size:10px;color:var(--dim)">/ jour</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="border-color:rgba(0,232,216,.2)">
+        <div class="card-title">RÉSULTATS — MELT REVENUE</div>
+        <div style="background:#050d0b;border-radius:8px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--dim);letter-spacing:.12em;margin-bottom:8px">TOTAL FEES BRUTS / JOUR</div>
+          <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px">
+            <span style="font-size:12px;color:var(--dim);width:70px">Takers</span>
+            <span style="font-size:17px;color:var(--cyan);font-weight:700" id="rev-taker-daily">—</span>
+            <span style="font-size:10px;color:var(--dim)" id="rev-taker-rate">—</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:10px">
+            <span style="font-size:12px;color:var(--dim);width:70px">Maker</span>
+            <span style="font-size:17px;color:#4a9eff;font-weight:700" id="rev-maker-daily">—</span>
+            <span style="font-size:10px;color:var(--dim)" id="rev-maker-rate">—</span>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:11px;color:var(--dim)">Total fees / jour</span>
+            <span style="font-size:20px;font-weight:700;color:#fff" id="rev-total-daily">—</span>
+          </div>
+        </div>
+        <div style="background:#050d0b;border-radius:8px;padding:14px;border:1px solid rgba(0,232,216,.2)">
+          <div style="font-size:10px;color:var(--dim);letter-spacing:.12em;margin-bottom:6px">MELT REVENUE (<span id="rev-share-pct">50</span>% des fees)</div>
+          <div style="font-size:38px;font-weight:700;color:var(--cyan);letter-spacing:-0.03em" id="rev-melt-daily">—</div>
+          <div style="font-size:11px;color:var(--dim);margin-bottom:12px">par jour</div>
+          <div class="grid-3">
+            <div class="stat-box"><div class="stat-label">MENSUEL</div><div style="font-size:14px;font-weight:700;color:var(--green)" id="rev-melt-monthly">—</div></div>
+            <div class="stat-box"><div class="stat-label">ANNUEL</div><div style="font-size:14px;font-weight:700;color:var(--green)" id="rev-melt-annual">—</div></div>
+            <div class="stat-box"><div class="stat-label">PAR $1M VOL</div><div style="font-size:14px;font-weight:700;color:var(--gold)" id="rev-per-1m">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">REVENUE PAR SCÉNARIO (ANNUEL)</div>
+        <div class="chart-container" style="height:200px"><canvas id="chart-revenue"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="font-size:10px;color:var(--dim);text-align:center;padding:20px 0;border-top:1px solid var(--border);margin-top:30px">
+  MELT PROTOCOL · RWA Spot Volume Projection · Data: Dune Analytics #6372839 + Hyperliquid API · Fee: HIP-1 Spot
+</div>
+</div>
+
+<script>
+// ===== RWA-ONLY ASSETS (no crypto natives) =====
+// perpEst = estimated HIP-3 perp volume for matching RWA asset
+const RWA_ASSETS = [
+  // Stocks
+  {symbol:"NVDAon",  label:"NVIDIA",   total:611250729, avg30d:5896821, avg7d:2859506, perpEst:4500000,  type:"stock",    perpTicker:"kNVDA"},
+  {symbol:"TSLAon",  label:"TESLA",    total:544071678, avg30d:3113571, avg7d:2465209, perpEst:6000000,  type:"stock",    perpTicker:"kTSLA"},
+  {symbol:"CRCLon",  label:"CIRCLE",   total:517446034, avg30d:7151982, avg7d:9310892, perpEst:2000000,  type:"stock",    perpTicker:"—"},
+  {symbol:"GOOGLon", label:"GOOGLE",   total:390319693, avg30d:1265361, avg7d:632003,  perpEst:3000000,  type:"stock",    perpTicker:"kGOOGL"},
+  {symbol:"MSTRon",  label:"MSTR",     total:287122226, avg30d:1075896, avg7d:778013,  perpEst:4000000,  type:"stock",    perpTicker:"kMSTR"},
+  {symbol:"MUon",    label:"MICRON",   total:281508646, avg30d:1657412, avg7d:2619088, perpEst:1000000,  type:"stock",    perpTicker:"—"},
+  {symbol:"AAPLon",  label:"APPLE",    total:239919810, avg30d:1224296, avg7d:402070,  perpEst:3500000,  type:"stock",    perpTicker:"kAAPL"},
+  {symbol:"COINon",  label:"COINBASE", total:231665192, avg30d:1609053, avg7d:408997,  perpEst:3000000,  type:"stock",    perpTicker:"kCOIN"},
+  {symbol:"BABAon",  label:"ALIBABA",  total:228367122, avg30d:732383,  avg7d:948594,  perpEst:2000000,  type:"stock",    perpTicker:"kBABA"},
+  {symbol:"AMZNon",  label:"AMAZON",   total:212590818, avg30d:662590,  avg7d:311144,  perpEst:3000000,  type:"stock",    perpTicker:"kAMZN"},
+  {symbol:"NFLXon",  label:"NETFLIX",  total:209834223, avg30d:577846,  avg7d:299145,  perpEst:2000000,  type:"stock",    perpTicker:"kNFLX"},
+  {symbol:"AVGOon",  label:"BROADCOM", total:196077602, avg30d:674091,  avg7d:390520,  perpEst:1500000,  type:"stock",    perpTicker:"kAVGO"},
+  {symbol:"AMDon",   label:"AMD",      total:186227549, avg30d:280932,  avg7d:85023,   perpEst:3000000,  type:"stock",    perpTicker:"kAMD"},
+  {symbol:"HOODon",  label:"ROBINHOOD",total:176498226, avg30d:823790,  avg7d:360603,  perpEst:1500000,  type:"stock",    perpTicker:"—"},
+  {symbol:"PLTRon",  label:"PALANTIR", total:170471865, avg30d:848848,  avg7d:399327,  perpEst:2000000,  type:"stock",    perpTicker:"kPLTR"},
+  {symbol:"METAon",  label:"META",     total:166900014, avg30d:778000,  avg7d:326006,  perpEst:3000000,  type:"stock",    perpTicker:"kMETA"},
+  // ETFs
+  {symbol:"QQQon",   label:"QQQ (NASDAQ100)", total:322956732, avg30d:6028913, avg7d:3103489, perpEst:5000000, type:"etf", perpTicker:"XYZ100"},
+  // Commodities
+  {symbol:"SLVon",   label:"SILVER",   total:507699521, avg30d:2445205, avg7d:1386348, perpEst:1500000,  type:"commodity", perpTicker:"SLV perp"},
+];
+
+const DAILY_TOTALS = [
+  {day:"2026-03-18",vol:13899297},{day:"2026-03-17",vol:39375466},{day:"2026-03-16",vol:73867564},
+  {day:"2026-03-15",vol:11727270},{day:"2026-03-14",vol:11146909},{day:"2026-03-13",vol:101197447},
+  {day:"2026-03-12",vol:97393686},{day:"2026-03-11",vol:118855216},{day:"2026-03-10",vol:154368718},
+  {day:"2026-03-09",vol:123397294},{day:"2026-03-08",vol:14169738},{day:"2026-03-07",vol:13051314},
+  {day:"2026-03-06",vol:74490818},{day:"2026-03-05",vol:61895073},{day:"2026-03-04",vol:95932698},
+  {day:"2026-03-03",vol:67586743},{day:"2026-03-02",vol:61232700},{day:"2026-03-01",vol:13579024},
+  {day:"2026-02-28",vol:15492628},{day:"2026-02-27",vol:49099870},{day:"2026-02-26",vol:61733945},
+  {day:"2026-02-25",vol:87879332},{day:"2026-02-24",vol:55662469},{day:"2026-02-23",vol:48306278},
+  {day:"2026-02-22",vol:9634394},{day:"2026-02-21",vol:10707921},{day:"2026-02-20",vol:46597438},
+  {day:"2026-02-19",vol:50779426},{day:"2026-02-18",vol:85158450},{day:"2026-02-17",vol:106384391},
+];
+
+const SPOT_TIERS = [
+  {taker:0.070,maker:0.040},{taker:0.060,maker:0.030},
+  {taker:0.050,maker:0.020},{taker:0.040,maker:0.010},{taker:0.035,maker:0.000},
+];
+
+// ===== STATE =====
+let multiplier=5, spRatio=10, selectedScenario='base';
+let assetEnabled=RWA_ASSETS.map(()=>true);
+
+// ===== HELPERS =====
+function fmt(n){
+  if(Math.abs(n)>=1e9) return '$'+(n/1e9).toFixed(2)+'B';
+  if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if(Math.abs(n)>=1e3) return '$'+Math.round(n).toLocaleString('en-US');
+  return '$'+n.toFixed(2);
+}
+function fmtS(n){
+  if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if(Math.abs(n)>=1e3) return '$'+(n/1e3).toFixed(0)+'K';
+  return '$'+n.toFixed(0);
+}
+function typeTag(t){
+  return `<span class="tag tag-${t}">${t.toUpperCase()}</span>`;
+}
+
+// ===== SECTION 1: RWA PERP TABLE =====
+function renderRwaPerps(){
+  const tb=document.getElementById('rwa-perp-table');
+  tb.innerHTML='';
+  RWA_ASSETS.forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td style="color:var(--gold)">${a.perpTicker}</td>
+      <td style="color:#fff;font-weight:600">${a.symbol} (${a.label})</td>
+      <td>${fmtS(a.perpEst)}</td>
+      <td>${typeTag(a.type)}</td>
+      <td style="color:var(--dim);font-size:10px">Ondo 30d: ${fmtS(a.avg30d)}</td>
+    </tr>`;
+  });
+}
+
+// ===== SECTION 2 =====
+function renderOndoData(){
+  // Compute RWA-only daily totals (approximate — use ratio of RWA vs total)
+  const rwaTotal = RWA_ASSETS.reduce((s,a)=>s+a.avg30d,0);
+  const avg30 = rwaTotal; // already RWA-only averages
+  const avg7 = RWA_ASSETS.reduce((s,a)=>s+a.avg7d,0);
+  document.getElementById('ondo-avg-30d').textContent=fmtS(avg30);
+  document.getElementById('ondo-avg-7d').textContent=fmtS(avg7);
+
+  const tb=document.getElementById('ondo-top-table');
+  tb.innerHTML='';
+  [...RWA_ASSETS].sort((a,b)=>b.avg30d-a.avg30d).forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td style="color:#fff">${a.symbol} ${typeTag(a.type)}</td>
+      <td>${fmtS(a.total)}</td>
+      <td>${fmtS(a.avg30d)}</td>
+      <td>${fmtS(a.avg7d)}</td>
+    </tr>`;
+  });
+  updateProjection();
+}
+
+// ===== CONTROLS =====
+function setMult(v){
+  multiplier=v;
+  document.getElementById('mult-slider').value=v;
+  document.querySelectorAll('#section-ondo .btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.includes(v===3?'Bear':v===5?'Base':'Bull'));
+  });
+  updateProjection();
+}
+document.getElementById('mult-slider').addEventListener('input',function(){
+  multiplier=Number(this.value);
+  document.getElementById('mult-label').textContent=multiplier+'x';
+  updateProjection();
+});
+
+function setSpRatio(v){
+  spRatio=v;
+  document.getElementById('sp-ratio-slider').value=v;
+  document.getElementById('sp-ratio-label').textContent=v+'%';
+  document.querySelectorAll('#section-projection .btn').forEach(b=>{
+    b.classList.toggle('active',
+      (v===3&&b.textContent.includes('3%'))||(v===10&&b.textContent.includes('10%'))||(v===25&&b.textContent.includes('25%'))
+    );
+  });
+  updateProjection();
+}
+document.getElementById('sp-ratio-slider').addEventListener('input',function(){
+  spRatio=Number(this.value);
+  document.getElementById('sp-ratio-label').textContent=spRatio+'%';
+  updateProjection();
+});
+
+function toggleAsset(i){ assetEnabled[i]=!assetEnabled[i]; updateProjection(); }
+
+function setScenarioVol(s){
+  selectedScenario=s;
+  ['bear','base','bull'].forEach(sc=>{
+    document.getElementById('scen-'+sc).style.borderColor = sc===s ? 'rgba(0,232,216,.25)' : 'var(--border)';
+  });
+  recalcRevenue();
+}
+
+// ===== PROJECTION =====
+function updateProjection(){
+  document.getElementById('mult-label').textContent=multiplier+'x';
+  const rwaAvg = RWA_ASSETS.reduce((s,a)=>s+a.avg30d,0);
+  const projDaily = rwaAvg * multiplier;
+  document.getElementById('proj-volume').textContent=fmtS(projDaily);
+  document.getElementById('proj-monthly').textContent='Mensuel: '+fmt(projDaily*30);
+
+  const tb=document.getElementById('projection-table');
+  tb.innerHTML='';
+  let tO=0,tM=0,tP=0,tR=0,tF=0;
+
+  RWA_ASSETS.forEach((a,i)=>{
+    const ondoV=a.avg30d, multV=ondoV*multiplier, perpV=a.perpEst, ratioV=perpV*(spRatio/100);
+    const finalV=Math.max(multV,ratioV);
+    const en=assetEnabled[i];
+    if(en){tO+=ondoV;tM+=multV;tP+=perpV;tR+=ratioV;tF+=finalV;}
+    tb.innerHTML+=`<tr style="opacity:${en?1:0.3}">
+      <td><div class="toggle ${en?'on':'off'}" onclick="toggleAsset(${i})"></div></td>
+      <td style="color:#fff;font-weight:600">${a.symbol} ${typeTag(a.type)}</td>
+      <td>${fmtS(ondoV)}</td>
+      <td style="color:var(--gold)">${fmtS(multV)}</td>
+      <td>${fmtS(perpV)}</td>
+      <td>${fmtS(ratioV)}</td>
+      <td style="color:var(--cyan);font-weight:700">${fmtS(finalV)}</td>
+    </tr>`;
+  });
+
+  document.getElementById('proj-total-ondo').textContent=fmtS(tO);
+  document.getElementById('proj-total-mult').textContent=fmtS(tM);
+  document.getElementById('proj-total-perp').textContent=fmtS(tP);
+  document.getElementById('proj-total-ratio').textContent=fmtS(tR);
+  document.getElementById('proj-total-final').textContent=fmtS(tF);
+
+  document.getElementById('scen-bear-vol').textContent=fmtS(tF*0.5);
+  document.getElementById('scen-base-vol').textContent=fmtS(tF);
+  document.getElementById('scen-bull-vol').textContent=fmtS(tF*2);
+
+  recalcRevenue(); renderProjChart(); renderRevChart();
+}
+
+// ===== REVENUE =====
+function recalcRevenue(){
+  let tF=0;
+  RWA_ASSETS.forEach((a,i)=>{
+    if(!assetEnabled[i]) return;
+    tF+=Math.max(a.avg30d*multiplier,a.perpEst*(spRatio/100));
+  });
+  const sm=selectedScenario==='bear'?0.5:(selectedScenario==='bull'?2:1);
+  const dV=tF*sm;
+  const tier=Number(document.getElementById('tier-select').value);
+  const dT=Number(document.getElementById('disc-slider').value)/100;
+  const dM=Number(document.getElementById('disc-maker-slider').value)/100;
+  const mS=Number(document.getElementById('melt-share-slider').value)/100;
+  document.getElementById('disc-label').textContent=Math.round(dT*100)+'%';
+  document.getElementById('disc-maker-label').textContent=Math.round(dM*100)+'%';
+  document.getElementById('melt-share-label').textContent=Math.round(mS*100)+'%';
+  const tR=SPOT_TIERS[tier].taker*(1-dT), mR=SPOT_TIERS[tier].maker*(1-dM);
+  const tF2=dV*(tR/100), mF=dV*(mR/100), tot=tF2+mF, mD=tot*mS;
+  document.getElementById('rev-taker-daily').textContent=fmt(tF2);
+  document.getElementById('rev-taker-rate').textContent=`(${tR.toFixed(4)}%)`;
+  document.getElementById('rev-maker-daily').textContent='+ '+fmt(mF);
+  document.getElementById('rev-maker-rate').textContent=`(${mR.toFixed(4)}%)`;
+  document.getElementById('rev-total-daily').textContent=fmt(tot);
+  document.getElementById('rev-share-pct').textContent=Math.round(mS*100);
+  document.getElementById('rev-melt-daily').textContent=fmt(mD);
+  document.getElementById('rev-melt-monthly').textContent=fmt(mD*30);
+  document.getElementById('rev-melt-annual').textContent=fmt(mD*365);
+  document.getElementById('rev-per-1m').textContent=fmt(1e6*(tR+mR)/100*mS);
+}
+
+// ===== CHARTS =====
+let cO,cP,cR;
+function renderOndoChart(){
+  const ctx=document.getElementById('chart-ondo-daily').getContext('2d');
+  const d=DAILY_TOTALS.slice(0,30).reverse();
+  if(cO) cO.destroy();
+  cO=new Chart(ctx,{type:'line',data:{labels:d.map(x=>x.day.slice(5)),datasets:[{label:'Volume Ondo (all)',data:d.map(x=>x.vol),borderColor:'#00E8D8',backgroundColor:'rgba(0,232,216,0.1)',fill:true,tension:.3,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6b65',font:{size:9}},grid:{color:'#1a2e2a'}},y:{ticks:{color:'#4a6b65',font:{size:9},callback:v=>fmtS(v)},grid:{color:'#1a2e2a'}}}}});
+}
+function renderProjChart(){
+  const ctx=document.getElementById('chart-projection').getContext('2d');
+  if(cP) cP.destroy();
+  const en=RWA_ASSETS.filter((_,i)=>assetEnabled[i]);
+  cP=new Chart(ctx,{type:'bar',data:{labels:en.map(a=>a.label),datasets:[
+    {label:'Ondo 30d avg',data:en.map(a=>a.avg30d),backgroundColor:'rgba(0,232,216,0.3)',borderColor:'#00E8D8',borderWidth:1},
+    {label:'Projection Melt',data:en.map(a=>Math.max(a.avg30d*multiplier,a.perpEst*(spRatio/100))),backgroundColor:'rgba(245,166,35,0.4)',borderColor:'#f5a623',borderWidth:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#4a6b65',font:{size:10}}}},scales:{x:{ticks:{color:'#4a6b65',font:{size:8},maxRotation:45},grid:{display:false}},y:{ticks:{color:'#4a6b65',font:{size:9},callback:v=>fmtS(v)},grid:{color:'#1a2e2a'}}}}});
+}
+function renderRevChart(){
+  const ctx=document.getElementById('chart-revenue').getContext('2d');
+  if(cR) cR.destroy();
+  let tF=0;
+  RWA_ASSETS.forEach((a,i)=>{if(assetEnabled[i]) tF+=Math.max(a.avg30d*multiplier,a.perpEst*(spRatio/100));});
+  const tier=Number(document.getElementById('tier-select').value);
+  const dT=Number(document.getElementById('disc-slider').value)/100;
+  const dM=Number(document.getElementById('disc-maker-slider').value)/100;
+  const mS=Number(document.getElementById('melt-share-slider').value)/100;
+  const rate=(SPOT_TIERS[tier].taker*(1-dT)+SPOT_TIERS[tier].maker*(1-dM))/100;
+  const ann=[0.5,1,2].map(m=>tF*m*rate*mS*365);
+  cR=new Chart(ctx,{type:'bar',data:{labels:['Bear','Base','Bull'],datasets:[{data:ann,backgroundColor:['rgba(255,107,107,0.5)','rgba(0,232,216,0.5)','rgba(144,238,144,0.5)'],borderColor:['#ff6b6b','#00E8D8','#90ee90'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6b65',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#4a6b65',font:{size:9},callback:v=>fmtS(v)},grid:{color:'#1a2e2a'}}}}});
+}
+
+// ===== INIT =====
+renderRwaPerps();
+renderOndoData();
+renderOndoChart();
+</script>
+</body>
+</html>

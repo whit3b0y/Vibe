@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-eth:*)",
+      "Bash(git config:*)",
+      "Bash(npm install:*)",
+      "Bash(yarn install)",
+      "Bash(npx hardhat:*)",
+      "Bash(yarn build:*)",
+      "Bash(node --version:*)",
+      "WebFetch(domain:blackbook.wtf)",
+      "Bash(python3 -c \"import json; print\\(json.dumps\\(json.load\\(open\\(''notion_batch_1.json''\\)\\)\\)\\)\")",
+      "mcp__a659e268-ee56-4c28-8776-c62d5e5be489__notion-create-pages",
+      "mcp__a659e268-ee56-4c28-8776-c62d5e5be489__notion-create-view",
+      "WebFetch(domain:melt-hip3-volume-projection.netlify.app)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(xargs kill:*)",
+      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H \"Content-Type: application/json\" -d '{\"\"\"\"type\"\"\"\":\"\"\"\"metaAndAssetCtxs\"\"\"\"}')",
+      "Bash(python3 -m json.tool)",
+      "WebSearch",
+      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H \"Content-Type: application/json\" -d '{\"\"\"\"type\"\"\"\":\"\"\"\"spotMetaAndAssetCtxs\"\"\"\"}')",
+      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H \"Content-Type: application/json\" -d '{\"\"\"\"type\"\"\"\":\"\"\"\"spotMeta\"\"\"\"}')",
+      "Bash(python3)",
+      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H 'Content-Type: application/json' -d '{\"\"\"\"type\"\"\"\":\"\"\"\"metaAndAssetCtxs\"\"\"\"}')"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "store-agent",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspace nextjs dev",
+    "build": "yarn workspace nextjs build",
+    "start": "yarn workspace nextjs start",
+    "compile": "yarn workspace hardhat compile",
+    "deploy": "yarn workspace hardhat deploy",
+    "test": "yarn workspace hardhat test"
+  }
+}

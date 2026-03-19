@@ -1,0 +1,29 @@
+{
+  "name": "hardhat",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat deploy --network base",
+    "deploy:sepolia": "hardhat deploy --network baseSepolia",
+    "deploy:local": "hardhat deploy --network localhost",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "hardhat": "^2.19.0",
+    "hardhat-deploy": "^0.11.45",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.4.0",
+    "chai": "^4.2.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^20.10.0"
+  }
+}

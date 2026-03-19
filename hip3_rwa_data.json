@@ -1,0 +1,387 @@
+{
+  "rwa_perps": [
+    {
+      "ticker": "CL",
+      "type": "commodity",
+      "vol24h": 617181168.5954461,
+      "dexes": {
+        "XYZ": 617181168.5954461
+      }
+    },
+    {
+      "ticker": "SILVER",
+      "type": "commodity",
+      "vol24h": 292988414.7267592,
+      "dexes": {
+        "XYZ": 251774790.71070012,
+        "Felix": 13245499.562979996,
+        "Kinetiq": 2684522.229789001,
+        "dreamcash": 25283602.223290075
+      }
+    },
+    {
+      "ticker": "XYZ100",
+      "type": "index",
+      "vol24h": 220821108.6372002,
+      "dexes": {
+        "XYZ": 220821108.6372002
+      }
+    },
+    {
+      "ticker": "BRENTOIL",
+      "type": "commodity",
+      "vol24h": 171303939.76995006,
+      "dexes": {
+        "XYZ": 171303939.76995006
+      }
+    },
+    {
+      "ticker": "USA500",
+      "type": "index",
+      "vol24h": 84029088.2047791,
+      "dexes": {
+        "Felix": 365699.9206799999,
+        "dreamcash": 83663388.2840991
+      }
+    },
+    {
+      "ticker": "GOLD",
+      "type": "commodity",
+      "vol24h": 68394224.17863996,
+      "dexes": {
+        "XYZ": 65815936.84527996,
+        "Felix": 464075.3259999999,
+        "Kinetiq": 537371.5070399998,
+        "dreamcash": 1576840.5003199999
+      }
+    },
+    {
+      "ticker": "HOOD",
+      "type": "stock",
+      "vol24h": 31149071.496828977,
+      "dexes": {
+        "XYZ": 12816115.301864002,
+        "dreamcash": 18332956.194964975
+      }
+    },
+    {
+      "ticker": "CRCL",
+      "type": "stock",
+      "vol24h": 28714114.444570005,
+      "dexes": {
+        "XYZ": 28297215.310770005,
+        "Felix": 416899.1338000001
+      }
+    },
+    {
+      "ticker": "PLATINUM",
+      "type": "commodity",
+      "vol24h": 26620943.231969994,
+      "dexes": {
+        "XYZ": 16569841.512469994,
+        "Felix": 10051101.7195
+      }
+    },
+    {
+      "ticker": "NATGAS",
+      "type": "commodity",
+      "vol24h": 24446170.934819963,
+      "dexes": {
+        "XYZ": 24446170.934819963
+      }
+    },
+    {
+      "ticker": "NVDA",
+      "type": "stock",
+      "vol24h": 23946890.36805998,
+      "dexes": {
+        "XYZ": 15691362.746389981,
+        "Felix": 205762.7815,
+        "Kinetiq": 206235.7056,
+        "dreamcash": 7843529.134569999
+      }
+    },
+    {
+      "ticker": "TSLA",
+      "type": "stock",
+      "vol24h": 18605835.28986001,
+      "dexes": {
+        "XYZ": 9590100.517830001,
+        "Felix": 322370.1928,
+        "Kinetiq": 536343.7022700001,
+        "dreamcash": 8157020.87696001
+      }
+    },
+    {
+      "ticker": "INTC",
+      "type": "stock",
+      "vol24h": 18450746.654604986,
+      "dexes": {
+        "XYZ": 5976746.005780003,
+        "dreamcash": 12474000.648824982
+      }
+    },
+    {
+      "ticker": "EWY",
+      "type": "index",
+      "vol24h": 16214383.693290003,
+      "dexes": {
+        "XYZ": 13918914.725489998,
+        "dreamcash": 2295468.9678000035
+      }
+    },
+    {
+      "ticker": "MU",
+      "type": "stock",
+      "vol24h": 13126885.66738001,
+      "dexes": {
+        "XYZ": 12851409.92346001,
+        "Kinetiq": 275475.74392
+      }
+    },
+    {
+      "ticker": "COPPER",
+      "type": "commodity",
+      "vol24h": 12729566.571112003,
+      "dexes": {
+        "XYZ": 12505136.054689003,
+        "Felix": 224430.5164229999
+      }
+    },
+    {
+      "ticker": "US500",
+      "type": "index",
+      "vol24h": 12511863.836139986,
+      "dexes": {
+        "Kinetiq": 12511863.836139986
+      }
+    },
+    {
+      "ticker": "COIN",
+      "type": "stock",
+      "vol24h": 9953551.058379997,
+      "dexes": {
+        "XYZ": 9348621.883979997,
+        "Felix": 604929.1744
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "type": "stock",
+      "vol24h": 8785197.726950001,
+      "dexes": {
+        "XYZ": 4363038.052180002,
+        "dreamcash": 4422159.674769998
+      }
+    },
+    {
+      "ticker": "MSTR",
+      "type": "stock",
+      "vol24h": 7202591.710040002,
+      "dexes": {
+        "XYZ": 7202591.710040002
+      }
+    },
+    {
+      "ticker": "WTI",
+      "type": "commodity",
+      "vol24h": 7072798.266589979,
+      "dexes": {
+        "dreamcash": 7072798.266589979
+      }
+    },
+    {
+      "ticker": "BABA",
+      "type": "stock",
+      "vol24h": 6931849.185819997,
+      "dexes": {
+        "XYZ": 6126981.079009998,
+        "Kinetiq": 804868.1068099999
+      }
+    },
+    {
+      "ticker": "PLTR",
+      "type": "stock",
+      "vol24h": 6810710.217809998,
+      "dexes": {
+        "XYZ": 6702332.6270699985,
+        "Kinetiq": 108377.59074
+      }
+    },
+    {
+      "ticker": "GOOGL",
+      "type": "stock",
+      "vol24h": 6178843.603099998,
+      "dexes": {
+        "XYZ": 4244904.992089997,
+        "Kinetiq": 155749.99818,
+        "dreamcash": 1778188.6128300012
+      }
+    },
+    {
+      "ticker": "META",
+      "type": "stock",
+      "vol24h": 5844607.708780007,
+      "dexes": {
+        "XYZ": 1578982.9217,
+        "dreamcash": 4265624.787080008
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "type": "stock",
+      "vol24h": 3952232.2083499953,
+      "dexes": {
+        "XYZ": 1792972.13985,
+        "dreamcash": 2159260.0684999954
+      }
+    },
+    {
+      "ticker": "OIL",
+      "type": "commodity",
+      "vol24h": 3183154.820819,
+      "dexes": {
+        "Felix": 3183154.820819
+      }
+    },
+    {
+      "ticker": "AAPL",
+      "type": "stock",
+      "vol24h": 3031914.468739999,
+      "dexes": {
+        "XYZ": 2995562.596009999,
+        "Kinetiq": 36351.87273
+      }
+    },
+    {
+      "ticker": "USTECH",
+      "type": "index",
+      "vol24h": 2912166.26995,
+      "dexes": {
+        "Kinetiq": 2912166.26995
+      }
+    },
+    {
+      "ticker": "SMALL2000",
+      "type": "index",
+      "vol24h": 2224997.00135,
+      "dexes": {
+        "Kinetiq": 2224997.00135
+      }
+    },
+    {
+      "ticker": "AMD",
+      "type": "stock",
+      "vol24h": 1670497.2389200006,
+      "dexes": {
+        "XYZ": 1670497.2389200006
+      }
+    },
+    {
+      "ticker": "USOIL",
+      "type": "commodity",
+      "vol24h": 1459344.5538500003,
+      "dexes": {
+        "Kinetiq": 1459344.5538500003
+      }
+    },
+    {
+      "ticker": "NFLX",
+      "type": "stock",
+      "vol24h": 1139850.758307,
+      "dexes": {
+        "XYZ": 1139850.758307
+      }
+    },
+    {
+      "ticker": "NUCLEAR",
+      "type": "sector",
+      "vol24h": 567941.85638,
+      "dexes": {
+        "Ventuals": 567941.85638
+      }
+    },
+    {
+      "ticker": "USBOND",
+      "type": "bond",
+      "vol24h": 429304.472569,
+      "dexes": {
+        "Kinetiq": 429304.472569
+      }
+    },
+    {
+      "ticker": "MAG7",
+      "type": "index",
+      "vol24h": 271105.615075,
+      "dexes": {
+        "Ventuals": 271105.615075
+      }
+    },
+    {
+      "ticker": "ENERGY",
+      "type": "sector",
+      "vol24h": 260888.56147,
+      "dexes": {
+        "Ventuals": 260888.56147
+      }
+    },
+    {
+      "ticker": "ANTHROPIC",
+      "type": "sector",
+      "vol24h": 183733.50853,
+      "dexes": {
+        "Ventuals": 183733.50853
+      }
+    },
+    {
+      "ticker": "ROBOT",
+      "type": "sector",
+      "vol24h": 109514.6095,
+      "dexes": {
+        "Ventuals": 109514.6095
+      }
+    },
+    {
+      "ticker": "SEMIS",
+      "type": "sector",
+      "vol24h": 92268.9189,
+      "dexes": {
+        "Ventuals": 92268.9189
+      }
+    },
+    {
+      "ticker": "BIOTECH",
+      "type": "sector",
+      "vol24h": 63769.22619,
+      "dexes": {
+        "Ventuals": 63769.22619
+      }
+    },
+    {
+      "ticker": "DEFENSE",
+      "type": "sector",
+      "vol24h": 55852.63909,
+      "dexes": {
+        "Ventuals": 55852.63909
+      }
+    },
+    {
+      "ticker": "INFOTECH",
+      "type": "sector",
+      "vol24h": 14198.29247,
+      "dexes": {
+        "Ventuals": 14198.29247
+      }
+    },
+    {
+      "ticker": "SPACEX",
+      "type": "sector",
+      "vol24h": 3268.8139,
+      "dexes": {
+        "Ventuals": 3268.8139
+      }
+    }
+  ],
+  "total_rwa_vol": 1761640569.61324,
+  "total_all_hip3": 1850551693.1389973
+}

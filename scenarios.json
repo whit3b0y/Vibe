@@ -1,0 +1,129 @@
+{
+  "bear": {
+    "label": "Bear",
+    "ratios": {
+      "commodities": 3,
+      "indices": 3,
+      "stocks": 3
+    },
+    "total_daily": 52795795
+  },
+  "base": {
+    "label": "Base",
+    "ratios": {
+      "commodities": 3,
+      "indices": 5,
+      "stocks": 8
+    },
+    "total_daily": 69350259
+  },
+  "bull": {
+    "label": "Bull",
+    "ratios": {
+      "commodities": 8,
+      "indices": 15,
+      "stocks": 20
+    },
+    "total_daily": 187977163
+  },
+  "hip3_by_cat": {
+    "commodities": {
+      "total": 1225379727,
+      "tickers": {
+        "CL (Crude Oil)": 617181169,
+        "SILVER": 292988415,
+        "BRENTOIL": 171303940,
+        "GOLD": 68394224,
+        "PLATINUM": 26620943,
+        "NATGAS": 24446171,
+        "COPPER": 12729567,
+        "WTI": 7072798,
+        "OIL": 3183155,
+        "USOIL": 1459345
+      }
+    },
+    "indices": {
+      "total": 338984714,
+      "tickers": {
+        "XYZ100 (QQQ)": 220821109,
+        "USA500 (S&P)": 84029088,
+        "US500": 12511864,
+        "USTECH": 2912166,
+        "SMALL2000": 2224997,
+        "EWY (Korea)": 16214384,
+        "MAG7": 271106
+      }
+    },
+    "stocks": {
+      "total": 195495389,
+      "tickers": {
+        "HOOD": 31149071,
+        "CRCL": 28714114,
+        "NVDA": 23946890,
+        "TSLA": 18605835,
+        "INTC": 18450747,
+        "MU": 13126886,
+        "COIN": 9953551,
+        "AMZN": 8785198,
+        "MSTR": 7202592,
+        "BABA": 6931849,
+        "PLTR": 6810710,
+        "GOOGL": 6178844,
+        "META": 5844608,
+        "MSFT": 3952232,
+        "AAPL": 3031914,
+        "AMD": 1670497,
+        "NFLX": 1139851
+      }
+    }
+  },
+  "ondo_by_cat": {
+    "commodities": {
+      "total": 4859118,
+      "families": {
+        "Silver (SLVon)": 2445205,
+        "Gold (GLDon+IAUon)": 554786,
+        "Oil (USOon)": 1562588,
+        "Palladium (PALLon)": 126813,
+        "Copper ETF (COPXon)": 169726
+      }
+    },
+    "indices": {
+      "total": 8042215,
+      "families": {
+        "QQQ family (QQQ+TQQQ+SQQQ)": 6550615,
+        "S&P500 family (SPY+IVV)": 1330794,
+        "Russell (IJHon)": 61800,
+        "Intl (IEFAon)": 99006
+      }
+    },
+    "stocks": {
+      "total": 29249210,
+      "families": {
+        "CRCLon": 7151982,
+        "NVDAon": 5896821,
+        "TSLAon": 3113571,
+        "MUon": 1657412,
+        "COINon": 1609053,
+        "GOOGLon": 1265361,
+        "AAPLon": 1224296,
+        "MSTRon": 1075896,
+        "PLTRon": 848848,
+        "HOODon": 823790,
+        "METAon": 778000,
+        "AVGOon": 674091,
+        "MSFTon": 673886,
+        "BABAon": 732383,
+        "AMZNon": 662590,
+        "NFLXon": 577846,
+        "AMDon": 280932,
+        "INTCon": 202452
+      }
+    }
+  },
+  "current_ratios": {
+    "commodities": 0.4,
+    "indices": 2.37,
+    "stocks": 14.96
+  }
+}

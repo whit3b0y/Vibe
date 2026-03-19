@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melt Protocol — RWA Spot Volume & Revenue Projection</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0f0e;--card:#0f1a18;--border:#1a2e2a;--cyan:#00E8D8;--text:#c8e0dc;--dim:#4a6b65;--gold:#f5a623;--red:#ff6b6b;--green:#90ee90}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'JetBrains Mono','Fira Code','SF Mono',monospace;background:var(--bg);color:var(--text);padding:24px;line-height:1.5}
+.ctr{max-width:1400px;margin:0 auto}
+h1{font-size:22px;color:#fff;margin-bottom:4px}
+h2{font-size:14px;color:var(--cyan);margin-bottom:14px;letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px}
+.sub{font-size:11px;color:var(--dim);letter-spacing:.2em}
+.c{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px}
+.ct{font-size:10px;color:var(--dim);letter-spacing:.2em;margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.sb{background:#050d0b;border-radius:6px;padding:10px;border:1px solid var(--border)}
+.sl{font-size:10px;color:var(--dim);margin-bottom:3px}
+.sv{font-size:20px;font-weight:700;color:var(--cyan)}
+.ss{font-size:10px;color:var(--dim);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:6px 8px;color:var(--dim);border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.08em;font-weight:400}
+td{padding:5px 8px;border-bottom:1px solid #0f1f1c}
+tr:hover{background:#0a1512}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px}
+.tag-stock{background:#0a1a2a;color:var(--cyan);border:1px solid #1a2a3a}
+.tag-index{background:#0a2a0a;color:var(--green);border:1px solid #1a3a1a}
+.tag-commodity{background:#2a1a0a;color:var(--gold);border:1px solid #3a2a1a}
+.tag-sector{background:#1a0a2a;color:#c89eff;border:1px solid #2a1a3a}
+.tag-bond{background:#1a1a1a;color:#aaa;border:1px solid #2a2a2a}
+.tag-crypto{background:#1a0a2a;color:#c89eff;border:1px solid #2a1a3a}
+input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer;margin:4px 0}
+select{width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:5px 8px;border-radius:4px;cursor:pointer;font-family:inherit}
+.sec{margin-bottom:36px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);display:inline-block;margin-right:8px}
+.chc{position:relative;height:240px;margin-top:8px}
+.ib{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:6px;padding:8px 12px;font-size:11px;margin-bottom:12px}
+.btn{padding:4px 12px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--dim);border-radius:4px;font-family:inherit;letter-spacing:.08em}
+.btn.active{border-color:var(--cyan);background:rgba(0,232,216,.08);color:var(--cyan)}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.scen-card{cursor:pointer;transition:border-color .2s}
+.scen-card.active{border-color:rgba(0,232,216,.4)}
+.arg{padding:6px 10px;background:#050d0b;border-radius:4px;margin-bottom:4px;font-size:10px;color:var(--dim);border-left:2px solid var(--border)}
+.arg.active{border-left-color:var(--cyan);color:var(--text)}
+.tgl{width:34px;height:18px;border-radius:9px;cursor:pointer;position:relative;transition:background .2s;display:inline-block;vertical-align:middle}
+.tgl.on{background:var(--cyan)}.tgl.off{background:#1a2e2a}
+.tgl::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;transition:left .2s}
+.tgl.on::after{left:18px}.tgl.off::after{left:2px}
+.loading{color:var(--cyan);text-align:center;padding:40px;font-size:12px}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="ctr">
+
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <span class="dot"></span><span class="sub">MELT PROTOCOL · RWA SPOT VOLUME & REVENUE PROJECTION</span>
+  </div>
+  <h1>Tokenized RWA Spot Projection — Hyperliquid HIP-1</h1>
+  <p style="font-size:11px;color:var(--dim);margin-top:4px">Estimation basée sur le ratio Spot/Perp appliqué aux volumes HIP-3 RWA réels · Data live: Hyperliquid API + Dune Analytics</p>
+</div>
+
+<!-- ===== S1: RATIOS ===== -->
+<div class="sec">
+  <h2><span class="dot"></span>1 · Ratio Spot / Perp — Benchmarks</h2>
+  <div class="ib"><span style="color:var(--green)">Methodologie :</span> <span style="color:var(--dim)">On observe le ratio spot/perp sur les top 5 crypto (HL) puis on l'applique aux volumes perp RWA (HIP-3) pour estimer le volume spot atteignable. HL n'a pas de spot RWA natif — Melt serait le premier.</span></div>
+
+  <div class="c">
+    <div class="ct">TOP 5 CRYPTO — RATIO SPOT/PERP (LIVE HL API)</div>
+    <table>
+      <thead><tr><th>ASSET</th><th>PERP VOL 24H (HL)</th><th>SPOT VOL 24H (GLOBAL)</th><th>RATIO S/P GLOBAL</th></tr></thead>
+      <tbody id="crypto-ratio-table"></tbody>
+    </table>
+  </div>
+
+  <div class="g4" id="ratio-stats"></div>
+
+  <div class="c" style="margin-top:12px">
+    <div class="ct">HIP-3 RWA PERP VOLUMES PAR CATÉGORIE (LIVE — 7 DEXES)</div>
+    <div class="g3" id="hip3-cat-stats"></div>
+    <table style="margin-top:10px"><thead><tr><th>TICKER</th><th>TYPE</th><th>VOL 24H (LIVE)</th><th>DEXES</th></tr></thead>
+    <tbody id="hip3-table"></tbody>
+    <tfoot><tr style="border-top:2px solid var(--cyan)"><td colspan="2" style="color:var(--cyan);font-weight:700">TOTAL RWA PERP</td><td style="color:var(--cyan);font-weight:700" id="hip3-total">—</td><td></td></tr></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ===== S2: ONDO DATA ===== -->
+<div class="sec">
+  <h2><span class="dot"></span>2 · Volume Ondo RWA Actuel (Dune) + Ratio Contraint</h2>
+  <div class="g2">
+    <div>
+      <div class="c">
+        <div class="ct">VOLUME ONDO RWA — FAMILLES CUMULÉES</div>
+        <div class="g3" style="margin-bottom:10px">
+          <div class="sb"><div class="sl">STOCKS (AVG 30D)</div><div class="sv" style="font-size:16px" id="ondo-stocks">—</div></div>
+          <div class="sb"><div class="sl">INDICES (AVG 30D)</div><div class="sv" style="font-size:16px;color:var(--green)" id="ondo-indices">—</div></div>
+          <div class="sb"><div class="sl">COMMODITIES (AVG 30D)</div><div class="sv" style="font-size:16px;color:var(--gold)" id="ondo-commod">—</div></div>
+        </div>
+        <table><thead><tr><th>FAMILLE</th><th>TYPE</th><th>ONDO 30D AVG</th><th>ONDO 7D AVG</th><th>HIP-3 PERP 24H</th></tr></thead>
+        <tbody id="ondo-table"></tbody>
+        <tfoot><tr style="border-top:2px solid var(--cyan)"><td style="color:var(--cyan);font-weight:700" colspan="2">TOTAL</td><td id="ondo-total-30d" style="font-weight:700">—</td><td id="ondo-total-7d">—</td><td id="ondo-total-perp" style="color:var(--cyan)">—</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="c">
+        <div class="ct">RATIO ONDO SPOT / HIP-3 PERP (CONTRAINT)</div>
+        <div class="ib" style="background:#050d0b;border-color:var(--border)"><span style="color:var(--gold)">Ces ratios reflètent Ondo AVEC toutes ses contraintes</span> <span style="color:var(--dim)">(KYC, pas de limit orders, pas sur HL, horaires TradFi). Ce sont les planchers.</span></div>
+        <div class="g3" id="constrained-ratios"></div>
+        <div style="margin-top:12px">
+          <div class="ct">CONTRAINTES ONDO (LEVÉES PAR MELT)</div>
+          <div style="font-size:10px;color:var(--dim);line-height:1.8">
+            <div>🔒 KYC obligatoire → <span style="color:var(--cyan)">No KYC sur Melt</span></div>
+            <div>📊 Pas de limit orders → <span style="color:var(--cyan)">Full order book + Flowdesk MM</span></div>
+            <div>🖥️ Pas d'interface trading → <span style="color:var(--cyan)">Interface Hyperliquid native</span></div>
+            <div>⛓️ Pas sur HL → <span style="color:var(--cyan)">Natif HIP-1 sur Hyperliquid L1</span></div>
+            <div>⏰ Horaires TradFi → <span style="color:var(--cyan)">24/7 trading</span></div>
+            <div>🔗 Pas de composabilité → <span style="color:var(--cyan)">DeFi: delta-neutral, collateral, lending</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="ct">VOLUME ONDO (30 JOURS)</div>
+        <div class="chc"><canvas id="chart-ondo"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S3: SCENARIOS ===== -->
+<div class="sec">
+  <h2><span class="dot"></span>3 · Projection de Volume — 3 Scénarios Data-Driven</h2>
+  <div class="ib"><span style="color:var(--green)">Formule :</span> <span style="color:var(--dim)">Volume Spot Melt = HIP-3 RWA Perp Volume (live) × Ratio Spot/Perp (par catégorie). Pas de multiplicateur arbitraire — les ratios sont dérivés des benchmarks observés.</span></div>
+
+  <div class="g3" id="scenario-cards"></div>
+
+  <div class="c" style="margin-top:12px" id="scenario-args-card">
+    <div class="ct" id="scenario-args-title">ARGUMENTAIRE — BASE CASE</div>
+    <div id="scenario-args"></div>
+  </div>
+
+  <div class="c" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="ct" style="margin:0">PROJECTION PAR ASSET — <span id="active-scenario-label">BASE</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="toggleAll(true)" style="font-size:9px;padding:3px 8px">ALL</button>
+        <button class="btn" onclick="toggleAll(false)" style="font-size:9px;padding:3px 8px">NONE</button>
+        <span style="font-size:10px;color:var(--dim);margin-left:6px" id="toggle-count">—</span>
+      </div>
+    </div>
+    <table><thead><tr><th style="width:30px">ON</th><th>FAMILLE</th><th>TYPE</th><th>ONDO ACTUEL</th><th>PERP HIP-3</th><th>RATIO S/P</th><th>PROJECTION MELT</th></tr></thead>
+    <tbody id="proj-table"></tbody>
+    <tfoot><tr style="border-top:2px solid var(--cyan)"><td colspan="2" style="color:var(--cyan);font-weight:700">TOTAL</td><td id="pt-ondo">—</td><td id="pt-perp">—</td><td></td><td id="pt-proj" style="color:var(--cyan);font-weight:700;font-size:13px">—</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="chc" style="height:280px;margin-top:12px"><canvas id="chart-proj"></canvas></div>
+</div>
+
+<!-- ===== S4: REVENUE ===== -->
+<div class="sec">
+  <h2><span class="dot"></span>4 · Projection Revenue Melt</h2>
+  <div class="g2">
+    <div>
+      <div class="c">
+        <div class="ct">RETAIL (CÔTÉ TAKER)</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;padding:6px 8px;background:#050d0b;border-radius:4px;border:1px solid var(--border)">
+          <span style="color:var(--dim)">Fee taker base (Tier 0)</span>
+          <span style="color:var(--cyan);font-weight:700">0.0700%</span>
+        </div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Staking tier retail type</span><span style="color:var(--cyan);font-weight:700" id="retail-stake-lbl">Bronze (10%)</span></div>
+          <select id="retail-stake-tier" onchange="calcRevenue()" style="width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 8px;border-radius:4px;font-family:inherit">
+            <option value="0">Aucun — 0% discount</option>
+            <option value="5">Wood (>10 HYPE) — 5%</option>
+            <option value="10" selected>Bronze (>100 HYPE) — 10%</option>
+            <option value="15">Silver (>1k HYPE) — 15%</option>
+            <option value="20">Gold (>10k HYPE) — 20%</option>
+            <option value="30">Platinum (>100k HYPE) — 30%</option>
+            <option value="40">Diamond (>500k HYPE) — 40%</option>
+          </select>
+        </div>
+        <div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>% du retail qui stake</span><span style="color:var(--gold);font-weight:700" id="retail-pct-lbl">30%</span></div><input type="range" id="retail-pct-sl" min="0" max="80" step="5" value="30" oninput="calcRevenue()"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--dim)">Discount blendé moyen</span><span style="color:var(--gold);font-weight:700" id="blended-disc-lbl">3%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;padding:6px 8px;background:#050d0b;border-radius:4px;border:1px solid rgba(0,232,216,.2)"><span style="color:var(--dim)">→ Fee taker effective</span><span style="color:var(--cyan);font-weight:700" id="eff-taker-lbl">0.0679%</span></div>
+      </div>
+      <div class="c" style="margin-top:12px">
+        <div class="ct">FLOWDESK (CÔTÉ MAKER)</div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Tier de volume Flowdesk</span></div>
+          <select id="fd-tier-select" onchange="calcRevenue()" style="width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 8px;border-radius:4px;font-family:inherit">
+            <option value="0">Tier 0 — base · M 0.040%</option>
+            <option value="1">Tier 1 — >$5M · M 0.030%</option>
+            <option value="2" selected>Tier 2 — >$25M · M 0.020%</option>
+            <option value="3">Tier 3 — >$100M · M 0.010%</option>
+            <option value="4">Tier 4 — >$500M · M 0.000%</option>
+          </select>
+        </div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Staking HYPE Flowdesk</span></div>
+          <select id="fd-stake-tier" onchange="calcRevenue()" style="width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 8px;border-radius:4px;font-family:inherit">
+            <option value="0">Aucun — 0%</option>
+            <option value="5">Wood (>10 HYPE) — 5%</option>
+            <option value="10">Bronze (>100 HYPE) — 10%</option>
+            <option value="15">Silver (>1k HYPE) — 15%</option>
+            <option value="20" selected>Gold (>10k HYPE) — 20%</option>
+            <option value="30">Platinum (>100k HYPE) — 30%</option>
+            <option value="40">Diamond (>500k HYPE) — 40%</option>
+          </select>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;padding:6px 8px;background:#050d0b;border-radius:4px;border:1px solid rgba(74,158,255,.2)"><span style="color:var(--dim)">→ Fee maker effective</span><span style="color:#4a9eff;font-weight:700" id="eff-maker-lbl">0.0160%</span></div>
+      </div>
+      <div class="c" style="margin-top:12px">
+        <div class="ct">PART MELT</div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>% des fees reversées à Melt</span><span style="color:var(--cyan);font-weight:700" id="melt-lbl">50%</span></div><input type="range" id="melt-sl" min="10" max="50" step="5" value="50" oninput="calcRevenue()"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--dim)"><span>Reste HL / HLP / AF</span><span id="hl-rest-lbl">50%</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="border-color:rgba(0,232,216,.2)">
+        <div class="ct">RÉSULTATS — MELT REVENUE (<span id="rev-scen-name">BASE</span>)</div>
+        <div style="background:#050d0b;border-radius:6px;padding:12px;margin-bottom:10px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--dim);margin-bottom:6px">TOTAL FEES / JOUR</div>
+          <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:3px"><span style="font-size:11px;color:var(--dim);width:60px">Takers</span><span style="font-size:16px;color:var(--cyan);font-weight:700" id="r-tk">—</span><span style="font-size:10px;color:var(--dim)" id="r-tk-r">—</span></div>
+          <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:8px"><span style="font-size:11px;color:var(--dim);width:60px">Maker</span><span style="font-size:16px;color:#4a9eff;font-weight:700" id="r-mk">—</span><span style="font-size:10px;color:var(--dim)" id="r-mk-r">—</span></div>
+          <div style="height:1px;background:var(--border);margin-bottom:8px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;color:var(--dim)">Total fees / jour</span><span style="font-size:18px;font-weight:700;color:#fff" id="r-tot">—</span></div>
+        </div>
+        <div style="background:#050d0b;border-radius:6px;padding:12px;border:1px solid rgba(0,232,216,.2)">
+          <div style="font-size:10px;color:var(--dim);margin-bottom:4px">MELT REVENUE (<span id="r-pct">50</span>% des fees)</div>
+          <div style="font-size:36px;font-weight:700;color:var(--cyan)" id="r-melt">—</div>
+          <div style="font-size:11px;color:var(--dim);margin-bottom:10px">par jour</div>
+          <div class="g3">
+            <div class="sb"><div class="sl">MENSUEL</div><div style="font-size:13px;font-weight:700;color:var(--green)" id="r-mo">—</div></div>
+            <div class="sb"><div class="sl">ANNUEL</div><div style="font-size:13px;font-weight:700;color:var(--green)" id="r-yr">—</div></div>
+            <div class="sb"><div class="sl">PAR $1M VOL</div><div style="font-size:13px;font-weight:700;color:var(--gold)" id="r-1m">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="ct">PROJECTIONS PAR SCÉNARIO</div>
+        <div class="g3" style="margin-bottom:10px">
+          <div class="sb"><div class="sl">BEAR — MENSUEL</div><div style="font-size:14px;font-weight:700;color:var(--red)" id="r-mo-bear">—</div></div>
+          <div class="sb"><div class="sl">BASE — MENSUEL</div><div style="font-size:14px;font-weight:700;color:var(--cyan)" id="r-mo-base">—</div></div>
+          <div class="sb"><div class="sl">BULL — MENSUEL</div><div style="font-size:14px;font-weight:700;color:var(--green)" id="r-mo-bull">—</div></div>
+        </div>
+        <div class="g3">
+          <div class="sb"><div class="sl">BEAR — ANNUEL</div><div style="font-size:14px;font-weight:700;color:var(--red)" id="r-yr-bear">—</div></div>
+          <div class="sb"><div class="sl">BASE — ANNUEL</div><div style="font-size:14px;font-weight:700;color:var(--cyan)" id="r-yr-base">—</div></div>
+          <div class="sb"><div class="sl">BULL — ANNUEL</div><div style="font-size:14px;font-weight:700;color:var(--green)" id="r-yr-bull">—</div></div>
+        </div>
+        <div class="chc" style="height:180px;margin-top:10px"><canvas id="chart-rev"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="font-size:10px;color:var(--dim);text-align:center;padding:16px 0;border-top:1px solid var(--border)">MELT PROTOCOL · RWA Spot Projection · Live data: Hyperliquid API (perps + spot + HIP-3) + Dune Analytics #6372839 · Fee: HIP-1</div>
+</div>
+
+<script>
+let D=null, activeScenario='base', enabled=[];
+const F=n=>{if(Math.abs(n)>=1e9)return'$'+(n/1e9).toFixed(2)+'B';if(Math.abs(n)>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(Math.abs(n)>=1e3)return'$'+Math.round(n).toLocaleString('en-US');return'$'+n.toFixed(0)};
+const T=t=>`<span class="tag tag-${t}">${t.toUpperCase()}</span>`;
+const GLOBAL_RATIOS={BTC:27,ETH:22,SOL:22,HYPE:25,XRP:30,PAXG:30};
+const GLOBAL_SPOT={BTC:18.5e9,ETH:8.2e9,SOL:1.8e9,HYPE:120e6,XRP:1.2e9,PAXG:45e6};
+
+const ONDO_CACHE={"families":[{"family":"CRCLon","label":"CIRCLE","hip3_ticker":"CRCL","cat":"stock","total_volume":517446034,"avg_30d":7151982,"avg_7d":9310892},{"family":"QQQ","label":"QQQ FAMILY","hip3_ticker":"XYZ100","cat":"index","total_volume":385015940,"avg_30d":6550615,"avg_7d":3473105},{"family":"NVDAon","label":"NVIDIA","hip3_ticker":"NVDA","cat":"stock","total_volume":611250729,"avg_30d":5896821,"avg_7d":2859506},{"family":"TSLAon","label":"TESLA","hip3_ticker":"TSLA","cat":"stock","total_volume":544071678,"avg_30d":3113571,"avg_7d":2465209},{"family":"SILVER","label":"SILVER (SLV)","hip3_ticker":"SILVER","cat":"commodity","total_volume":507699521,"avg_30d":2445205,"avg_7d":1386348},{"family":"MUon","label":"MICRON","hip3_ticker":"MU","cat":"stock","total_volume":281508646,"avg_30d":1657412,"avg_7d":2619088},{"family":"COINon","label":"COINBASE","hip3_ticker":"COIN","cat":"stock","total_volume":231665192,"avg_30d":1609053,"avg_7d":408997},{"family":"OIL","label":"OIL (USO)","hip3_ticker":"CL","cat":"commodity","total_volume":49457381,"avg_30d":1562588,"avg_7d":4234275},{"family":"SPY","label":"S&P500 FAMILY","hip3_ticker":"USA500","cat":"index","total_volume":111503216,"avg_30d":1330794,"avg_7d":1840496},{"family":"GOOGLon","label":"GOOGLE","hip3_ticker":"GOOGL","cat":"stock","total_volume":390319693,"avg_30d":1265361,"avg_7d":632003},{"family":"AAPLon","label":"APPLE","hip3_ticker":"AAPL","cat":"stock","total_volume":239919810,"avg_30d":1224296,"avg_7d":402070},{"family":"MSTRon","label":"MICROSTRATEGY","hip3_ticker":"MSTR","cat":"stock","total_volume":287122226,"avg_30d":1075896,"avg_7d":778013},{"family":"PLTRon","label":"PALANTIR","hip3_ticker":"PLTR","cat":"stock","total_volume":170471865,"avg_30d":848848,"avg_7d":399327},{"family":"HOODon","label":"ROBINHOOD","hip3_ticker":"HOOD","cat":"stock","total_volume":176498226,"avg_30d":823790,"avg_7d":360603},{"family":"METAon","label":"META","hip3_ticker":"META","cat":"stock","total_volume":166900014,"avg_30d":778000,"avg_7d":326006},{"family":"BABAon","label":"ALIBABA","hip3_ticker":"BABA","cat":"stock","total_volume":228367122,"avg_30d":732383,"avg_7d":948594},{"family":"AVGOon","label":"BROADCOM","hip3_ticker":"AVGO","cat":"stock","total_volume":196077602,"avg_30d":674091,"avg_7d":390520},{"family":"MSFTon","label":"MICROSOFT","hip3_ticker":"MSFT","cat":"stock","total_volume":144651581,"avg_30d":673886,"avg_7d":514645},{"family":"AMZNon","label":"AMAZON","hip3_ticker":"AMZN","cat":"stock","total_volume":212590818,"avg_30d":662590,"avg_7d":311144},{"family":"NFLXon","label":"NETFLIX","hip3_ticker":"NFLX","cat":"stock","total_volume":209834223,"avg_30d":577846,"avg_7d":299145},{"family":"GOLD","label":"GOLD (GLD+IAU)","hip3_ticker":"GOLD","cat":"commodity","total_volume":131559988,"avg_30d":554786,"avg_7d":314421},{"family":"AMDon","label":"AMD","hip3_ticker":"AMD","cat":"stock","total_volume":186227549,"avg_30d":280932,"avg_7d":85023},{"family":"INTCon","label":"INTEL","hip3_ticker":"INTC","cat":"stock","total_volume":155883939,"avg_30d":202452,"avg_7d":150253}],"daily_totals":[{"day":"2026-03-18","volume":13899297},{"day":"2026-03-17","volume":39375466},{"day":"2026-03-16","volume":73867564},{"day":"2026-03-15","volume":11727270},{"day":"2026-03-14","volume":11146909},{"day":"2026-03-13","volume":101197447},{"day":"2026-03-12","volume":97393686},{"day":"2026-03-11","volume":118855216},{"day":"2026-03-10","volume":154368718},{"day":"2026-03-09","volume":123397294},{"day":"2026-03-08","volume":14169738},{"day":"2026-03-07","volume":13051314},{"day":"2026-03-06","volume":74490818},{"day":"2026-03-05","volume":61895073},{"day":"2026-03-04","volume":95932698},{"day":"2026-03-03","volume":67586743},{"day":"2026-03-02","volume":61232700},{"day":"2026-03-01","volume":13579024},{"day":"2026-02-28","volume":15492628},{"day":"2026-02-27","volume":49099870},{"day":"2026-02-26","volume":61733945},{"day":"2026-02-25","volume":87879332},{"day":"2026-02-24","volume":55662469},{"day":"2026-02-23","volume":48306278},{"day":"2026-02-22","volume":9634394},{"day":"2026-02-21","volume":10707921},{"day":"2026-02-20","volume":46597438},{"day":"2026-02-19","volume":50779426},{"day":"2026-02-18","volume":85158450},{"day":"2026-02-17","volume":106384391},{"day":"2026-02-16","volume":12726019},{"day":"2026-02-15","volume":11177948},{"day":"2026-02-14","volume":12989176},{"day":"2026-02-13","volume":130591364},{"day":"2026-02-12","volume":140698686},{"day":"2026-02-11","volume":165335661},{"day":"2026-02-10","volume":149952406},{"day":"2026-02-09","volume":185594739},{"day":"2026-02-08","volume":11829720},{"day":"2026-02-07","volume":20579219},{"day":"2026-02-06","volume":253065601},{"day":"2026-02-05","volume":330281155},{"day":"2026-02-04","volume":328238316},{"day":"2026-02-03","volume":234243894},{"day":"2026-02-02","volume":287044140},{"day":"2026-02-01","volume":11650130},{"day":"2026-01-31","volume":18373280},{"day":"2026-01-30","volume":390123982},{"day":"2026-01-29","volume":402116393},{"day":"2026-01-28","volume":356998438},{"day":"2026-01-27","volume":253264125},{"day":"2026-01-26","volume":236301128},{"day":"2026-01-25","volume":10244177},{"day":"2026-01-24","volume":10402427},{"day":"2026-01-23","volume":248627741},{"day":"2026-01-22","volume":236378898},{"day":"2026-01-21","volume":326261745},{"day":"2026-01-20","volume":331368459},{"day":"2026-01-19","volume":14548923},{"day":"2026-01-18","volume":9082478}],"date_range":{"start":"2025-09-02","end":"2026-03-18"}};
+const RWA_TYPES={"SILVER":"commodity","GOLD":"commodity","PLATINUM":"commodity","CL":"commodity","BRENTOIL":"commodity","OIL":"commodity","WTI":"commodity","NATGAS":"commodity","COPPER":"commodity","USOIL":"commodity","XYZ100":"index","USA500":"index","US500":"index","USTECH":"index","SMALL2000":"index","EWY":"index","MAG7":"index","NVDA":"stock","TSLA":"stock","CRCL":"stock","COIN":"stock","BABA":"stock","HOOD":"stock","INTC":"stock","META":"stock","AMZN":"stock","MU":"stock","MSFT":"stock","PLTR":"stock","NFLX":"stock","AMD":"stock","GOOGL":"stock","AAPL":"stock","MSTR":"stock","AVGO":"stock","NUCLEAR":"sector","ENERGY":"sector","ANTHROPIC":"sector","ROBOT":"sector","SEMIS":"sector","BIOTECH":"sector","DEFENSE":"sector","INFOTECH":"sector","SPACEX":"sector","USBOND":"bond"};
+const SPOT_TIERS=[{"label":"Tier 0","taker":0.070,"maker":0.040},{"label":"Tier 1","taker":0.060,"maker":0.030},{"label":"Tier 2","taker":0.050,"maker":0.020},{"label":"Tier 3","taker":0.040,"maker":0.010},{"label":"Tier 4","taker":0.035,"maker":0.000}];
+const SCENARIOS={"bear":{"label":"Bear","ratios":{"commodity":1,"index":2,"stock":3},"arguments":["Ratio Ondo contraint: 0.4% commodities — bear juste au-dessus","Ratio HL crypto natif: 3.4% pour BTC/ETH/SOL","Risque execution: un seul MM, pas de track record spot RWA sur HL","Adoption lente, spreads larges, regulation incertaine"]},"base":{"label":"Base","ratios":{"commodity":3,"index":5,"stock":8},"arguments":["Stocks 8% conservateur vs ratio Ondo contraint deja 14.6%","Melt resout: No KYC, limit orders + Flowdesk MM, interface HL, 24/7","QQQ fait $6M/jour sur Ondo — demande organique prouvee","Commodities 3%: proches du ratio HL crypto"]},"bull":{"label":"Bull","ratios":{"commodity":8,"index":15,"stock":20},"arguments":["Ratio crypto global spot/perp 25% — 20% stocks encore en dessous","Melt = MONOPOLE spot RWA sur HL — 0 concurrence","Ratio Ondo stocks DEJA 14.6% AVEC KYC — 20% sans contraintes justifie","DeFi: delta-neutral, collateral, lending — volume additionnel"]}};
+async function init(){
+  document.body.innerHTML+='<div class="loading" id="loader">Fetching live HIP-3 + HL data...</div>';
+  try{
+    const HL='https://api.hyperliquid.xyz/info';
+    const P={method:'POST',headers:{'Content-Type':'application/json'}};
+    const dC=['xyz','flx','vntl','hyna','km','abcd','cash'];
+    const dN=['XYZ','Felix','Ventuals','HyENA','Kinetiq','ABCDEx','dreamcash'];
+    const[hlP,hlS,...h3]=await Promise.all([
+      fetch(HL,{...P,body:JSON.stringify({type:'metaAndAssetCtxs'})}).then(r=>r.json()),
+      fetch(HL,{...P,body:JSON.stringify({type:'spotMetaAndAssetCtxs'})}).then(r=>r.json()),
+      ...dC.map(d=>fetch(HL,{...P,body:JSON.stringify({type:'metaAndAssetCtxs',dex:d})}).then(r=>r.json()).catch(()=>null))
+    ]);
+    const pv={};let tp=0;
+    hlP[0].universe.forEach((c,i)=>{const v=+hlP[1][i].dayNtlVlm;tp+=v;if(['BTC','ETH','SOL','HYPE','XRP','PAXG'].includes(c.name))pv[c.name]=Math.round(v);});
+    const ts=hlS[1].reduce((s,c)=>s+(+c.dayNtlVlm),0);
+    const at={};
+    h3.forEach((d,di)=>{if(!d||d.length<2)return;d[0].universe.forEach((c,i)=>{const tk=c.name.includes(':')?c.name.split(':')[1]:c.name;const v=+d[1][i].dayNtlVlm;if(v<=0)return;if(!at[tk])at[tk]={t:0,d:{}};at[tk].t+=v;at[tk].d[dN[di]]=v;});});
+    const rp=[];const bc={commodity:0,index:0,stock:0};
+    for(const[tk,d]of Object.entries(at)){if(!RWA_TYPES[tk])continue;const t=RWA_TYPES[tk];rp.push({ticker:tk,type:t,vol24h:Math.round(d.t),dexes:Object.fromEntries(Object.entries(d.d).map(([k,v])=>[k,Math.round(v)]))});if(bc[t]!==undefined)bc[t]+=d.t;}
+    rp.sort((a,b)=>b.vol24h-a.vol24h);
+    const hm=Object.fromEntries(rp.map(p=>[p.ticker,p]));
+    const oc={stock:0,index:0,commodity:0};
+    ONDO_CACHE.families.forEach(f=>{const m=hm[f.hip3_ticker]||{};f.perp_vol_24h=m.vol24h||0;f.perp_dexes=m.dexes||{};oc[f.cat]=(oc[f.cat]||0)+f.avg_30d;});
+    const cr={};for(const c of['commodity','index','stock'])cr[c]=bc[c]>0?Math.round(oc[c]/bc[c]*10000)/100:0;
+    D={hl_ratios:{perp_vols:pv,total_perp:Math.round(tp),total_spot:Math.round(ts),ratio_hl:Math.round(ts/tp*10000)/100},hip3:{rwa_perps:rp,total_rwa_vol:rp.reduce((s,p)=>s+p.vol24h,0),by_category:Object.fromEntries(Object.entries(bc).map(([k,v])=>[k,Math.round(v)]))},ondo:{families:ONDO_CACHE.families,daily_totals:ONDO_CACHE.daily_totals,by_category:oc},spot_tiers:SPOT_TIERS,scenarios:SCENARIOS,current_ratios:cr};
+  }catch(e){document.getElementById('loader').textContent='Error: '+e.message;return;}
+  document.getElementById('loader')?.remove();
+  renderAll();
+}
+
+function renderAll(){
+  enabled=D.ondo.families.map(()=>true);
+  renderCryptoRatios();renderRatioStats();renderHip3();
+  renderOndo();renderConstrainedRatios();renderOndoChart();
+  renderScenarios();selectScenario('base');
+}
+function toggleAsset(i){enabled[i]=!enabled[i];selectScenario(activeScenario);}
+function toggleAll(v){enabled=enabled.map(()=>v);selectScenario(activeScenario);}
+
+// ===== S1 =====
+function renderCryptoRatios(){
+  const tb=document.getElementById('crypto-ratio-table');tb.innerHTML='';
+  ['BTC','ETH','SOL','HYPE','XRP'].forEach(c=>{
+    const pv=D.hl_ratios.perp_vols[c]||0;
+    tb.innerHTML+=`<tr><td style="color:#fff;font-weight:600">${c} ${T('crypto')}</td><td>${F(pv)}</td><td>${F(GLOBAL_SPOT[c])}</td><td style="color:var(--green);font-weight:700">~${GLOBAL_RATIOS[c]}%</td></tr>`;
+  });
+  const paxg=D.hl_ratios.perp_vols.PAXG||0;
+  tb.innerHTML+=`<tr style="border-top:1px solid var(--border)"><td style="color:var(--dim)">PAXG (Gold proxy)</td><td>${F(paxg)}</td><td>${F(GLOBAL_SPOT.PAXG)}</td><td style="color:var(--green);font-weight:700">~${GLOBAL_RATIOS.PAXG}%</td></tr>`;
+}
+
+function renderRatioStats(){
+  document.getElementById('ratio-stats').innerHTML=`
+    <div class="sb"><div class="sl">RATIO S/P GLOBAL CRYPTO</div><div class="sv">~25%</div><div class="ss">BTC+ETH+SOL tous exchanges</div></div>
+    <div class="sb"><div class="sl">RATIO S/P HYPERLIQUID (LIVE)</div><div class="sv" style="color:var(--gold)">${D.hl_ratios.ratio_hl}%</div><div class="ss">${F(D.hl_ratios.total_spot)} spot / ${F(D.hl_ratios.total_perp)} perp</div></div>
+    <div class="sb"><div class="sl">TOTAL HIP-3 RWA PERP (LIVE)</div><div class="sv" style="color:var(--green)">${F(D.hip3.total_rwa_vol)}</div><div class="ss">${D.hip3.rwa_perps.length} tickers across 7 DEXes</div></div>
+    <div class="sb"><div class="sl">ONDO SPOT RWA (DUNE 30D)</div><div class="sv" style="color:#fff">${F(Object.values(D.ondo.by_category).reduce((a,b)=>a+b,0))}</div><div class="ss">${D.ondo.families.length} familles cumulées</div></div>`;
+}
+
+function renderHip3(){
+  // Cat stats
+  const cats=D.hip3.by_category;
+  document.getElementById('hip3-cat-stats').innerHTML=`
+    <div class="sb"><div class="sl">COMMODITIES</div><div class="sv" style="font-size:16px;color:var(--gold)">${F(cats.commodity||0)}</div><div class="ss">${((cats.commodity||0)/D.hip3.total_rwa_vol*100).toFixed(0)}% du total</div></div>
+    <div class="sb"><div class="sl">INDICES / ETFs</div><div class="sv" style="font-size:16px;color:var(--green)">${F(cats.index||0)}</div><div class="ss">${((cats.index||0)/D.hip3.total_rwa_vol*100).toFixed(0)}%</div></div>
+    <div class="sb"><div class="sl">STOCKS</div><div class="sv" style="font-size:16px">${F(cats.stock||0)}</div><div class="ss">${((cats.stock||0)/D.hip3.total_rwa_vol*100).toFixed(0)}%</div></div>`;
+  // Table
+  const tb=document.getElementById('hip3-table');tb.innerHTML='';
+  D.hip3.rwa_perps.slice(0,20).forEach(p=>{
+    const dx=Object.entries(p.dexes).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}:${F(v)}`).join(' + ');
+    tb.innerHTML+=`<tr><td style="color:var(--gold);font-weight:600">${p.ticker}</td><td>${T(p.type)}</td><td style="color:var(--cyan);font-weight:700">${F(p.vol24h)}</td><td style="font-size:10px;color:var(--dim)">${dx}</td></tr>`;
+  });
+  document.getElementById('hip3-total').textContent=F(D.hip3.total_rwa_vol);
+}
+
+// ===== S2 =====
+function renderOndo(){
+  const cats=D.ondo.by_category;
+  document.getElementById('ondo-stocks').textContent=F(cats.stock||0);
+  document.getElementById('ondo-indices').textContent=F(cats.index||0);
+  document.getElementById('ondo-commod').textContent=F(cats.commodity||0);
+
+  const tb=document.getElementById('ondo-table');tb.innerHTML='';
+  let t30=0,t7=0,tp=0;
+  D.ondo.families.forEach(f=>{
+    t30+=f.avg_30d;t7+=f.avg_7d;tp+=f.perp_vol_24h;
+    tb.innerHTML+=`<tr><td style="color:#fff">${f.label}</td><td>${T(f.cat)}</td><td>${F(f.avg_30d)}</td><td>${F(f.avg_7d)}</td><td style="color:var(--cyan)">${F(f.perp_vol_24h)}</td></tr>`;
+  });
+  document.getElementById('ondo-total-30d').textContent=F(t30);
+  document.getElementById('ondo-total-7d').textContent=F(t7);
+  document.getElementById('ondo-total-perp').textContent=F(tp);
+}
+
+function renderConstrainedRatios(){
+  const cr=D.current_ratios;
+  document.getElementById('constrained-ratios').innerHTML=`
+    <div class="sb"><div class="sl">STOCKS · ONDO/PERP</div><div class="sv" style="font-size:18px;color:var(--green)">${cr.stock}%</div><div class="ss">Demande organique forte malgré KYC</div></div>
+    <div class="sb"><div class="sl">INDICES · ONDO/PERP</div><div class="sv" style="font-size:18px;color:var(--gold)">${cr.index}%</div><div class="ss">QQQ+SPY family vs XYZ100+USA500</div></div>
+    <div class="sb"><div class="sl">COMMODITIES · ONDO/PERP</div><div class="sv" style="font-size:18px;color:var(--red)">${cr.commodity}%</div><div class="ss">Perp domine (spéculation levier)</div></div>`;
+}
+
+// ===== S3: SCENARIOS =====
+function renderScenarios(){
+  const el=document.getElementById('scenario-cards');el.innerHTML='';
+  const colors={bear:'var(--red)',base:'var(--cyan)',bull:'var(--green)'};
+  for(const[k,s]of Object.entries(D.scenarios)){
+    const vol=calcScenarioVol(k);
+    el.innerHTML+=`<div class="sb scen-card ${k===activeScenario?'active':''}" id="sc-${k}" onclick="selectScenario('${k}')">
+      <div class="sl">${s.label.toUpperCase()} CASE</div>
+      <div style="font-size:24px;font-weight:700;color:${colors[k]}" id="sc-vol-${k}">${F(vol)}</div>
+      <div class="ss">par jour</div>
+      <div style="margin-top:6px;font-size:10px;color:var(--dim)">
+        Stocks: ${s.ratios.stock}% · Indices: ${s.ratios.index}% · Commod: ${s.ratios.commodity}%
+      </div>
+    </div>`;
+  }
+}
+function updateScenarioVols(){
+  for(const k of ['bear','base','bull']){
+    const el=document.getElementById('sc-vol-'+k);
+    if(el) el.textContent=F(calcScenarioVol(k));
+  }
+}
+
+function calcScenarioVol(scenario){
+  const s=D.scenarios[scenario];
+  let total=0;
+  D.ondo.families.forEach((f,i)=>{
+    if(!enabled[i]) return;
+    const ratio=s.ratios[f.cat]||3;
+    total+=f.perp_vol_24h*(ratio/100);
+  });
+  return total;
+}
+
+function selectScenario(k){
+  activeScenario=k;
+  document.querySelectorAll('.scen-card').forEach(el=>el.classList.toggle('active',el.id===`sc-${k}`));
+  const s=D.scenarios[k];
+  // Args
+  document.getElementById('scenario-args-title').textContent=`ARGUMENTAIRE — ${s.label.toUpperCase()} CASE`;
+  document.getElementById('scenario-args').innerHTML=s.arguments.map(a=>`<div class="arg active">${a}</div>`).join('');
+  document.getElementById('active-scenario-label').textContent=s.label.toUpperCase();
+  document.getElementById('rev-scen-name').textContent=s.label.toUpperCase();
+  // Projection table + update all scenario volumes (reflects toggles)
+  updateScenarioVols();
+  renderProjTable(k);
+  renderProjChart(k);
+  calcRevenue();
+}
+
+function renderProjTable(k){
+  const s=D.scenarios[k];
+  const tb=document.getElementById('proj-table');tb.innerHTML='';
+  let tO=0,tP=0,tProj=0,cnt=0;
+  D.ondo.families.forEach((f,i)=>{
+    const on=enabled[i];
+    const ratio=s.ratios[f.cat]||3;
+    const proj=f.perp_vol_24h*(ratio/100);
+    if(on){tO+=f.avg_30d;tP+=f.perp_vol_24h;tProj+=proj;cnt++;}
+    tb.innerHTML+=`<tr style="opacity:${on?1:0.3}">
+      <td><div class="tgl ${on?'on':'off'}" onclick="toggleAsset(${i})"></div></td>
+      <td style="color:#fff">${f.label}</td><td>${T(f.cat)}</td>
+      <td>${F(f.avg_30d)}</td><td style="color:var(--dim)">${F(f.perp_vol_24h)}</td>
+      <td style="color:var(--gold)">${ratio}%</td>
+      <td style="color:var(--cyan);font-weight:700">${F(proj)}</td></tr>`;
+  });
+  document.getElementById('pt-ondo').textContent=F(tO);
+  document.getElementById('pt-perp').textContent=F(tP);
+  document.getElementById('pt-proj').textContent=F(tProj);
+  document.getElementById('toggle-count').textContent=cnt+'/'+D.ondo.families.length+' selected';
+}
+
+// ===== S4: REVENUE =====
+function calcRevenue(){
+  const vol=calcScenarioVol(activeScenario);
+  // RETAIL TAKER: fixed Tier 0 (0.070%) + blended staking discount
+  const retailStakeDisc=+document.getElementById('retail-stake-tier').value/100;
+  const retailStakePct=+document.getElementById('retail-pct-sl').value/100;
+  const blendedDisc=retailStakeDisc*retailStakePct;
+  const tR=0.070*(1-blendedDisc);
+  // Update retail labels
+  document.getElementById('retail-stake-lbl').textContent=document.getElementById('retail-stake-tier').selectedOptions[0].text.split('—')[0].trim();
+  document.getElementById('retail-pct-lbl').textContent=Math.round(retailStakePct*100)+'%';
+  document.getElementById('blended-disc-lbl').textContent=(blendedDisc*100).toFixed(1)+'%';
+  document.getElementById('eff-taker-lbl').textContent=tR.toFixed(4)+'%';
+  // FLOWDESK MAKER: tier select + staking discount
+  const fdTier=+document.getElementById('fd-tier-select').value;
+  const fdMakerBase=D.spot_tiers[fdTier].maker;
+  const fdStakeDisc=+document.getElementById('fd-stake-tier').value/100;
+  const mR=fdMakerBase*(1-fdStakeDisc);
+  document.getElementById('eff-maker-lbl').textContent=mR.toFixed(4)+'%';
+  // MELT SHARE
+  const mS=+document.getElementById('melt-sl').value/100;
+  document.getElementById('melt-lbl').textContent=Math.round(mS*100)+'%';
+  document.getElementById('hl-rest-lbl').textContent=(100-Math.round(mS*100))+'%';
+  // COMPUTE
+  const tk=vol*(tR/100),mk=vol*(mR/100),tot=tk+mk,melt=tot*mS;
+  document.getElementById('r-tk').textContent=F(tk);document.getElementById('r-tk-r').textContent=`(${tR.toFixed(4)}%)`;
+  document.getElementById('r-mk').textContent='+ '+F(mk);document.getElementById('r-mk-r').textContent=`(${mR.toFixed(4)}%)`;
+  document.getElementById('r-tot').textContent=F(tot);document.getElementById('r-pct').textContent=Math.round(mS*100);
+  document.getElementById('r-melt').textContent=F(melt);
+  document.getElementById('r-mo').textContent=F(melt*30);document.getElementById('r-yr').textContent=F(melt*365);
+  document.getElementById('r-1m').textContent=F(1e6*(tR+mR)/100*mS);
+  // All 3 scenarios monthly/yearly
+  const rate=(tR+mR)/100;
+  for(const k of['bear','base','bull']){
+    const sv=calcScenarioVol(k);const rev=sv*rate*mS;
+    const moEl=document.getElementById('r-mo-'+k);if(moEl)moEl.textContent=F(rev*30);
+    const yrEl=document.getElementById('r-yr-'+k);if(yrEl)yrEl.textContent=F(rev*365);
+  }
+  renderRevChart();
+}
+
+// ===== CHARTS =====
+let cO,cP,cR;
+function renderOndoChart(){
+  const ctx=document.getElementById('chart-ondo').getContext('2d');
+  const d=D.ondo.daily_totals.slice(0,30).reverse();
+  if(cO)cO.destroy();
+  cO=new Chart(ctx,{type:'line',data:{labels:d.map(x=>x.day.slice(5)),datasets:[{label:'Volume Ondo',data:d.map(x=>x.volume),borderColor:'#00E8D8',backgroundColor:'rgba(0,232,216,0.1)',fill:true,tension:.3,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6b65',font:{size:8}},grid:{color:'#1a2e2a'}},y:{ticks:{color:'#4a6b65',font:{size:8},callback:v=>F(v)},grid:{color:'#1a2e2a'}}}}});
+}
+function renderProjChart(k){
+  const ctx=document.getElementById('chart-proj').getContext('2d');
+  if(cP)cP.destroy();
+  const s=D.scenarios[k||activeScenario];
+  const fams=D.ondo.families.filter((_,i)=>enabled[i]);
+  cP=new Chart(ctx,{type:'bar',data:{labels:fams.map(f=>f.hip3_ticker),datasets:[
+    {label:'Ondo actuel',data:fams.map(f=>f.avg_30d),backgroundColor:'rgba(0,232,216,0.25)',borderColor:'#00E8D8',borderWidth:1},
+    {label:'Projection Melt ('+s.label+')',data:fams.map(f=>f.perp_vol_24h*(s.ratios[f.cat]/100)),backgroundColor:'rgba(245,166,35,0.35)',borderColor:'#f5a623',borderWidth:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#4a6b65',font:{size:9}}}},scales:{x:{ticks:{color:'#4a6b65',font:{size:8},maxRotation:45},grid:{display:false}},y:{ticks:{color:'#4a6b65',font:{size:8},callback:v=>F(v)},grid:{color:'#1a2e2a'}}}}});
+}
+function getFeeRate(){
+  const retailStakeDisc=+document.getElementById('retail-stake-tier').value/100;
+  const retailStakePct=+document.getElementById('retail-pct-sl').value/100;
+  const tR=0.070*(1-retailStakeDisc*retailStakePct);
+  const fdTier=+document.getElementById('fd-tier-select').value;
+  const fdMakerBase=D.spot_tiers[fdTier].maker;
+  const fdStakeDisc=+document.getElementById('fd-stake-tier').value/100;
+  const mR=fdMakerBase*(1-fdStakeDisc);
+  const mS=+document.getElementById('melt-sl').value/100;
+  return {rate:(tR+mR)/100, mS};
+}
+function renderRevChart(){
+  const ctx=document.getElementById('chart-rev').getContext('2d');
+  if(cR)cR.destroy();
+  const {rate,mS}=getFeeRate();
+  const mo=['bear','base','bull'].map(k=>calcScenarioVol(k)*rate*mS*30);
+  const ann=mo.map(m=>m*365/30);
+  cR=new Chart(ctx,{type:'bar',data:{labels:['Bear Monthly','Bear Annual','Base Monthly','Base Annual','Bull Monthly','Bull Annual'],datasets:[{data:[mo[0],ann[0],mo[1],ann[1],mo[2],ann[2]],backgroundColor:['rgba(255,107,107,0.3)','rgba(255,107,107,0.5)','rgba(0,232,216,0.3)','rgba(0,232,216,0.5)','rgba(144,238,144,0.3)','rgba(144,238,144,0.5)'],borderColor:['#ff6b6b','#ff6b6b','#00E8D8','#00E8D8','#90ee90','#90ee90'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6b65',font:{size:8}},grid:{display:false}},y:{ticks:{color:'#4a6b65',font:{size:8},callback:v=>F(v)},grid:{color:'#1a2e2a'}}}}});
+}
+
+init();
+</script>
+</body>
+</html>

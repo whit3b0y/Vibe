@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melt Protocol - Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00D4AA;
+            --primary-dark: #00B894;
+            --secondary: #6C5CE7;
+            --accent: #FD79A8;
+            --dark-bg: #0A0A0F;
+            --card-bg: #12121A;
+            --card-border: #1E1E2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --gradient-1: linear-gradient(135deg, #00D4AA 0%, #00B894 100%);
+            --gradient-2: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+            --gradient-3: linear-gradient(135deg, #FD79A8 0%, #FDCB6E 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--card-border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-dot:hover,
+        .nav-dot.active {
+            background: var(--primary);
+            transform: scale(1.3);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: var(--text-secondary);
+            z-index: 1000;
+            background: var(--card-bg);
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        /* Slides */
+        .slide {
+            min-height: 100vh;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            scroll-snap-align: start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(108, 92, 231, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Typography */
+        .headline {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .subheadline {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-style: italic;
+            margin-top: 20px;
+            padding-left: 20px;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.15);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .card-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(108, 92, 231, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 30px 0;
+        }
+
+        .highlight-box.warning {
+            background: linear-gradient(135deg, rgba(253, 121, 168, 0.1) 0%, rgba(253, 203, 110, 0.1) 100%);
+            border-color: var(--accent);
+        }
+
+        /* Lists */
+        .feature-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient-1);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            flex-grow: 1;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        /* Title Slide Specific */
+        .title-slide {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title-slide .headline {
+            font-size: 5rem;
+            margin-bottom: 30px;
+        }
+
+        .title-slide .subheadline {
+            font-size: 2rem;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-1);
+            border-radius: 30px;
+            margin: 0 auto 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            box-shadow: 0 20px 60px rgba(0, 212, 170, 0.3);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .data-table th {
+            color: var(--primary);
+            font-weight: 600;
+            background: var(--card-bg);
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:hover td {
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        /* Big Number */
+        .big-number {
+            font-size: 5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .big-label {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        /* ROI Highlight */
+        .roi-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .roi-box .big-number {
+            color: var(--dark-bg);
+            -webkit-text-fill-color: var(--dark-bg);
+        }
+
+        .roi-box .big-label {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Ask Box */
+        .ask-box {
+            background: var(--gradient-2);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .ask-box .big-number {
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .ask-box .big-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .badge.purple {
+            background: rgba(108, 92, 231, 0.2);
+            color: var(--secondary);
+        }
+
+        .badge.pink {
+            background: rgba(253, 121, 168, 0.2);
+            color: var(--accent);
+        }
+
+        /* Critical Tag */
+        .critical-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .slide {
+                padding: 40px 30px;
+            }
+
+            .headline {
+                font-size: 2.5rem;
+            }
+
+            .title-slide .headline {
+                font-size: 3rem;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .nav {
+                right: 15px;
+            }
+
+            .big-number {
+                font-size: 3rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .slide {
+                page-break-after: always;
+                min-height: auto;
+                padding: 40px;
+            }
+
+            .nav, .slide-counter {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-content > * {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Dots -->
+    <nav class="nav">
+        <div class="nav-dot active" data-slide="1" title="Title"></div>
+        <div class="nav-dot" data-slide="2" title="Thesis"></div>
+        <div class="nav-dot" data-slide="3" title="Problem"></div>
+        <div class="nav-dot" data-slide="4" title="Solution"></div>
+        <div class="nav-dot" data-slide="5" title="Business Model"></div>
+        <div class="nav-dot" data-slide="6" title="Partnership"></div>
+        <div class="nav-dot" data-slide="7" title="Market"></div>
+        <div class="nav-dot" data-slide="8" title="Unit Economics"></div>
+        <div class="nav-dot" data-slide="9" title="The Ask"></div>
+        <div class="nav-dot" data-slide="10" title="Roadmap"></div>
+    </nav>
+
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / 10
+    </div>
+
+    <!-- SLIDE 1: Title -->
+    <section class="slide title-slide" id="slide-1">
+        <div class="slide-content">
+            <div class="logo-placeholder">M</div>
+            <h1 class="headline">Melt Protocol</h1>
+            <p class="subheadline">The Liquidity Engine for HyperEVM</p>
+            <p class="tagline">"Building the missing Spot Layer on the world's fastest growing exchange."</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: The Thesis -->
+    <section class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2 class="headline">The Hyperliquid Anomaly</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-number">01</div>
+                    <h3 class="card-title">The Leader</h3>
+                    <p class="card-text">Hyperliquid is the <strong>#1 Perps DEX globally</strong> with $1B - $3B daily volume.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">02</div>
+                    <h3 class="card-title">The Gap</h3>
+                    <p class="card-text">It is a <strong>giant with one leg</strong>. Spot volume is <strong>&lt;2.5%</strong> of activity, compared to ~20-30% on Binance.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">03</div>
+                    <h3 class="card-title">The Vision</h3>
+                    <p class="card-text">Traders are speculating billions on assets they <strong>cannot own</strong>. The first protocol to build the "Ownership Layer" (Spot) will capture a <strong>monopoly on liquidity</strong>.</p>
+                </div>
+            </div>
+
+            <div class="stats-row" style="justify-content: center; margin-top: 60px;">
+                <div class="stat">
+                    <div class="stat-value">$1-3B</div>
+                    <div class="stat-label">Daily Perp Volume</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">2.5%</div>
+                    <div class="stat-label">Current Spot Ratio</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">20-30%</div>
+                    <div class="stat-label">Industry Standard</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: The Problem -->
+    <section class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2 class="headline">The Hyperliquid Gap</h2>
+            <p class="subheadline">A Market Incomplete</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-number">01</div>
+                    <h3 class="card-title">Anemic Spot Volume</h3>
+                    <p class="card-text" style="margin-bottom: 16px;">The "2% Rule"</p>
+                    <ul class="feature-list">
+                        <li>Top CEXs maintain 20-30% Spot-to-Perp ratios</li>
+                        <li>Hyperliquid lags at ~2.5%</li>
+                        <li>The demand is <strong>trapped</strong> in derivatives</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">02</div>
+                    <h3 class="card-title">No Equities & Commodities</h3>
+                    <p class="card-text" style="margin-bottom: 16px;">The "Paper" Trap</p>
+                    <ul class="feature-list">
+                        <li>Traders speculate heavily on Silver ($1B+ daily)</li>
+                        <li>Heavy S&P 500 speculation</li>
+                        <li><strong>Zero ability</strong> to own these assets</li>
+                        <li>Forced to trade "paper" contracts with no store of value</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">03</div>
+                    <h3 class="card-title">The Asset Shortage</h3>
+                    <p class="card-text" style="margin-bottom: 16px;">Missing Inventory</p>
+                    <ul class="feature-list">
+                        <li>Major Blue-Chip cryptos missing</li>
+                        <li>Key L1s absent from orderbook</li>
+                        <li>Users forced to <strong>bridge out to competitors</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: The Solution -->
+    <section class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2 class="headline">Melt Protocol</h2>
+            <p class="subheadline">The Universal Acquisition Layer</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-number">01</div>
+                    <h3 class="card-title">The "Smart Buy" Engine</h3>
+                    <span class="badge">Frictionless Access</span>
+                    <p class="card-text" style="margin-top: 16px;">Replace complex bridging with a <strong>"One-Click Buy"</strong> experience.</p>
+                    <div class="highlight-box" style="margin-top: 20px; padding: 16px;">
+                        <strong>User Journey:</strong> Swap USDC from Arbitrum/Base directly into Spot Assets on Hyperliquid in sub-seconds.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">02</div>
+                    <h3 class="card-title">Unlocking Real World Assets</h3>
+                    <span class="badge purple">RWAs</span>
+                    <p class="card-text" style="margin-top: 16px;">Melt provides the secure rail for <strong>Tokenized Commodities & Equities</strong>.</p>
+                    <div style="margin-top: 16px;">
+                        <span class="badge">mXAG</span>
+                        <span class="badge">mGOLD</span>
+                        <span class="badge">mSPY</span>
+                        <span class="badge">mUSDY</span>
+                    </div>
+                    <p class="card-text" style="margin-top: 12px;">Converting speculative perp volume into <strong>actual ownership</strong>.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">03</div>
+                    <h3 class="card-title">Expanding the Crypto Shelf</h3>
+                    <span class="badge pink">Liquidity</span>
+                    <p class="card-text" style="margin-top: 16px;">Deploying deep liquid markets for missing L1s and DeFi Blue Chips.</p>
+                    <p class="card-text" style="margin-top: 12px;">Aggregating cross-chain liquidity into Hyperliquid's orderbook.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: Business Model -->
+    <section class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2 class="headline">Capturing Value at Every Step</h2>
+            <p class="subheadline">Protocol Business Model</p>
+
+            <div class="two-col">
+                <div>
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h3 class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            Bridge Fees
+                            <span style="color: var(--primary); font-size: 2rem; font-weight: 800;">0.50%</span>
+                        </h3>
+                        <p class="card-text">Applied on Retail "Smart Buy/Sell". Monetizes the convenience of instant onboarding (In/Out).</p>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h3 class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            Trading Fees
+                            <span style="color: var(--primary); font-size: 2rem; font-weight: 800;">0.03%</span>
+                        </h3>
+                        <p class="card-text">Applied on all Orderbook Volume. Recurring revenue generated by high-velocity trading and arbitrage.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            Yield Capture
+                            <span style="color: var(--primary); font-size: 1.5rem;">Spread</span>
+                        </h3>
+                        <p class="card-text">Protocol retains the spread on yield-bearing assets (e.g., Treasury Bills backing mUSDY) while users hold the token.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 40px;">
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Revenue Streams</p>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div style="background: var(--gradient-1); padding: 20px; border-radius: 12px;">
+                                <strong style="color: var(--dark-bg);">Onboarding</strong>
+                            </div>
+                            <div style="color: var(--primary);">↓</div>
+                            <div style="background: var(--gradient-2); padding: 20px; border-radius: 12px;">
+                                <strong style="color: white;">Trading</strong>
+                            </div>
+                            <div style="color: var(--primary);">↓</div>
+                            <div style="background: var(--gradient-3); padding: 20px; border-radius: 12px;">
+                                <strong style="color: var(--dark-bg);">Holding</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: Strategic Partnership -->
+    <section class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2 class="headline">Why CBB?</h2>
+            <p class="subheadline">The Liquidity Monopoly</p>
+
+            <div class="highlight-box" style="text-align: center; margin-bottom: 40px;">
+                <p style="font-size: 1.2rem;"><strong>Role:</strong> CBB acts as the <span style="color: var(--primary);">Designated Market Maker (DMM)</span> for Melt markets.</p>
+            </div>
+
+            <div class="two-col">
+                <div class="card">
+                    <h3 class="card-title">First-Mover Advantage</h3>
+                    <ul class="feature-list">
+                        <li>As the <strong>exclusive partner</strong> at launch, CBB captures ~80-100% of order flow</li>
+                        <li>No retail limit orders initially = CBB is the <strong>sole counterparty</strong></li>
+                        <li>Maximum extraction on every trade</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">The Incentive</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <span class="badge" style="font-size: 1.5rem; padding: 12px 20px;">💰</span>
+                            <div>
+                                <strong>Risk-Free Yield</strong>
+                                <p class="card-text">Profit from spread/arbitrage without directional exposure</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="badge purple" style="font-size: 1.5rem; padding: 12px 20px;">🔑</span>
+                            <div>
+                                <strong>Inventory Access</strong>
+                                <p class="card-text">Exclusive access to Mint/Redeem facilities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: Market Opportunity -->
+    <section class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2 class="headline">The "Blue Ocean" Revenue</h2>
+            <p class="subheadline">Case Study: Spot Silver (mXAG)</p>
+
+            <div class="two-col">
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">The Demand (Data-Driven)</h3>
+
+                    <table class="data-table">
+                        <tr>
+                            <td>Hyperliquid Silver Perp Volume</td>
+                            <td style="text-align: right;"><strong style="color: var(--primary);">~$1,000,000,000 / day</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Current Spot Volume</td>
+                            <td style="text-align: right;"><strong style="color: var(--accent);">$0</strong></td>
+                        </tr>
+                    </table>
+
+                    <h3 style="color: var(--primary); margin: 40px 0 20px;">The Projection</h3>
+
+                    <table class="data-table">
+                        <tr>
+                            <td>Target Capture Rate</td>
+                            <td style="text-align: right;"><strong>2%</strong> of speculative flow</td>
+                        </tr>
+                        <tr>
+                            <td>Daily Spot Volume</td>
+                            <td style="text-align: right;"><strong style="color: var(--primary);">$20,000,000</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div>
+                    <div class="roi-box">
+                        <p style="color: var(--dark-bg); margin-bottom: 10px; font-weight: 600;">Protocol Revenue</p>
+                        <div class="big-number">$16,000</div>
+                        <div class="big-label">Per Day</div>
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.2);">
+                            <p class="big-number" style="font-size: 2.5rem;">$5.8M</p>
+                            <p class="big-label">Annual Run Rate</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box warning" style="text-align: center;">
+                        <strong style="color: var(--accent);">⚡ This is for ONE asset only</strong>
+                        <p class="card-text">Expanding to Equities multiplies this potential.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: Unit Economics -->
+    <section class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2 class="headline">Partner ROI & Capital Efficiency</h2>
+            <p class="subheadline">CBB Unit Economics — The Killer Slide</p>
+
+            <div class="card-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="card">
+                    <h3 class="card-title">1. Dual Revenue Regimes</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="padding: 16px; background: rgba(0, 212, 170, 0.1); border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: var(--primary);">Weekdays</strong>
+                            <p class="card-text">High velocity arbitrage</p>
+                            <p style="color: var(--primary); font-size: 1.2rem; font-weight: 700;">~5 bps spread</p>
+                        </div>
+                        <div style="padding: 16px; background: rgba(253, 121, 168, 0.1); border-radius: 8px;">
+                            <strong style="color: var(--accent);">Weekends</strong>
+                            <p class="card-text">Inventory Monopoly — sole price maker</p>
+                            <p style="color: var(--accent); font-size: 1.2rem; font-weight: 700;">~50 bps spread</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">2. Capital Requirements</h3>
+                    <p class="card-text" style="margin-bottom: 16px;">Safe & Optimized</p>
+
+                    <table class="data-table" style="margin-top: 0;">
+                        <tr>
+                            <td><strong>Total Capital</strong></td>
+                            <td style="text-align: right; color: var(--primary);"><strong>$1,000,000</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Inventory (Ask)</td>
+                            <td style="text-align: right;">$500k</td>
+                        </tr>
+                        <tr>
+                            <td>Liquidity (Bid)</td>
+                            <td style="text-align: right;">$200k</td>
+                        </tr>
+                        <tr>
+                            <td>Hedge Margin</td>
+                            <td style="text-align: right;">$300k</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, rgba(0, 212, 170, 0.2) 0%, rgba(0, 184, 148, 0.2) 100%);">
+                    <h3 class="card-title">3. ROI Projection</h3>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <p style="color: var(--text-secondary); margin-bottom: 10px;">Annual Net Profit</p>
+                        <div class="big-number" style="font-size: 2.5rem;">$2,950,000</div>
+
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--card-border);">
+                            <div class="big-number" style="font-size: 4rem;">295%</div>
+                            <div class="big-label">APY</div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <span class="badge" style="background: var(--primary); color: var(--dark-bg);">Delta Neutral</span>
+                            <span class="badge purple">Fully Hedged</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: The Ask -->
+    <section class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2 class="headline">Securing the Digital Real Estate</h2>
+            <p class="subheadline">The Ask</p>
+
+            <div class="ask-box">
+                <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">Investment Required</p>
+                <div class="big-number">$300,000</div>
+            </div>
+
+            <div class="two-col">
+                <div class="card" style="border-color: var(--accent);">
+                    <span class="critical-tag">⚠️ CRITICAL</span>
+                    <h3 class="card-title" style="margin-top: 16px;">The Immediate Threat</h3>
+                    <p class="card-text" style="margin-top: 12px;">HIP-1 Auctions</p>
+                    <div class="highlight-box warning" style="margin-top: 16px;">
+                        <p>Hyperliquid tickers are <strong>auctioned</strong>. Once <strong>mBTC</strong> or <strong>mSPY</strong> is taken by a memecoin, the institutional opportunity is <strong>lost forever</strong>.</p>
+                        <p style="margin-top: 12px; color: var(--accent); font-weight: 700;">We must secure the official tickers NOW.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Use of Funds</h3>
+
+                    <div style="margin-top: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(108, 92, 231, 0.1); border-radius: 12px; margin-bottom: 16px;">
+                            <div>
+                                <strong style="color: var(--secondary);">Strategic Ticker Acquisition</strong>
+                                <p class="card-text">The Moat</p>
+                            </div>
+                            <span style="font-size: 1.5rem; font-weight: 800; color: var(--secondary);">$200k</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(0, 212, 170, 0.1); border-radius: 12px;">
+                            <div>
+                                <strong style="color: var(--primary);">Audits & Initial Liquidity</strong>
+                                <p class="card-text">The Trust</p>
+                            </div>
+                            <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">$100k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: Roadmap -->
+    <section class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2 class="headline">Go-to-Market Timeline</h2>
+            <p class="subheadline">Roadmap</p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Month 1 <span class="critical-tag" style="margin-left: 10px;">CRITICAL</span></div>
+                        <p class="card-text">Capital Injection & HIP-1 Ticker Acquisition</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Month 2</div>
+                        <p class="card-text">Smart Contract Audits & Testnet Deployment</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Month 3 — Mainnet Launch</div>
+                        <p class="card-text"><strong>Wave 1:</strong></p>
+                        <div style="margin-top: 12px;">
+                            <span class="badge">mSILVER</span>
+                            <span class="badge">mSOL</span>
+                            <span class="badge">mUSDY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">6</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Month 6 — Expansion</div>
+                        <p class="card-text"><strong>Wave 2: Equities</strong></p>
+                        <div style="margin-top: 12px;">
+                            <span class="badge purple">mSPY</span>
+                            <span class="badge purple">mNVDA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 60px;">
+                <div class="logo-placeholder" style="width: 80px; height: 80px; font-size: 2rem; border-radius: 20px;">M</div>
+                <p style="color: var(--text-secondary); margin-top: 20px;">Melt Protocol — Building the Ownership Layer</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideEl = document.getElementById('currentSlide');
+
+        // Update active dot on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const slideId = entry.target.id;
+                    const slideNum = slideId.replace('slide-', '');
+
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    document.querySelector(`[data-slide="${slideNum}"]`).classList.add('active');
+                    currentSlideEl.textContent = slideNum;
+                }
+            });
+        }, { threshold: 0.5 });
+
+        slides.forEach(slide => observer.observe(slide));
+
+        // Click navigation
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideNum = dot.dataset.slide;
+                document.getElementById(`slide-${slideNum}`).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const current = parseInt(currentSlideEl.textContent);
+
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (current < 10) {
+                    document.getElementById(`slide-${current + 1}`).scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (current > 1) {
+                    document.getElementById(`slide-${current - 1}`).scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
