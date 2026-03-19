@@ -117,7 +117,7 @@ select{width:100%;background:#0a1512;border:1px solid var(--border);color:var(--
           <div class="ct">CONTRAINTES ONDO (LEVÉES PAR MELT)</div>
           <div style="font-size:10px;color:var(--dim);line-height:1.8">
             <div>🔒 KYC obligatoire → <span style="color:var(--cyan)">No KYC sur Melt</span></div>
-            <div>📊 Pas de limit orders → <span style="color:var(--cyan)">Full order book + Flowdesk MM</span></div>
+            <div>📊 Pas de limit orders → <span style="color:var(--cyan)">Full order book + MM MM</span></div>
             <div>🖥️ Pas d'interface trading → <span style="color:var(--cyan)">Interface Hyperliquid native</span></div>
             <div>⛓️ Pas sur HL → <span style="color:var(--cyan)">Natif HIP-1 sur Hyperliquid L1</span></div>
             <div>⏰ Horaires TradFi → <span style="color:var(--cyan)">24/7 trading</span></div>
@@ -193,7 +193,7 @@ select{width:100%;background:#0a1512;border:1px solid var(--border);color:var(--
       <div class="c" style="margin-top:12px">
         <div class="ct">FLOWDESK (CÔTÉ MAKER)</div>
         <div style="margin-bottom:6px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Tier de volume Flowdesk</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Tier de volume MM</span></div>
           <select id="fd-tier-select" onchange="calcRevenue()" style="width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 8px;border-radius:4px;font-family:inherit">
             <option value="0">Tier 0 — base · M 0.040%</option>
             <option value="1">Tier 1 — >$5M · M 0.030%</option>
@@ -203,7 +203,7 @@ select{width:100%;background:#0a1512;border:1px solid var(--border);color:var(--
           </select>
         </div>
         <div style="margin-bottom:6px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Staking HYPE Flowdesk</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>Staking HYPE MM</span></div>
           <select id="fd-stake-tier" onchange="calcRevenue()" style="width:100%;background:#0a1512;border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 8px;border-radius:4px;font-family:inherit">
             <option value="0">Aucun — 0%</option>
             <option value="5">Wood (>10 HYPE) — 5%</option>

@@ -73,7 +73,7 @@ SCENARIOS = {
         "arguments": [
             "Le ratio Ondo contraint est déjà à 2.3% — même en levant les contraintes, le marché RWA spot reste niche",
             "Le ratio HL crypto natif est à 3.4% pour BTC/ETH/SOL qui sont les assets les plus tradés au monde",
-            "Risque d'exécution: un seul MM (Flowdesk), pas de track record spot RWA sur HL, régulation incertaine",
+            "Risque d'exécution: un seul MM (MM), pas de track record spot RWA sur HL, régulation incertaine",
             "Les volumes HIP-3 perp sont concentrés sur les commodities (70%) — le spot commodity sans levier a moins d'attrait",
         ],
     },
@@ -82,7 +82,7 @@ SCENARIOS = {
         "ratios": {"commodity": 3, "index": 5, "stock": 8},
         "arguments": [
             "Les stocks ont un ratio Ondo spot/HIP-3 perp DÉJÀ à 14.6% malgré les contraintes → 8% est conservateur",
-            "Melt résout les contraintes: No KYC (×2-3x TAM), limit orders + Flowdesk MM, interface HL, 24/7, composabilité DeFi",
+            "Melt résout les contraintes: No KYC (×2-3x TAM), limit orders + MM MM, interface HL, 24/7, composabilité DeFi",
             "Les indices (QQQ $6M/jour sur Ondo) prouvent une demande organique à 5% du perp",
             "Les commodities restent à 3% car dominées par la spéculation levier — le spot sans levier attire moins",
         ],
