@@ -199,10 +199,18 @@ def fetch_ondo_volumes():
 
     # Build cumulated families
     families = []
+    last_day = days_sorted[0] if days_sorted else None
+    # Build per-symbol last-day volume
+    symbol_last1d = defaultdict(float)
+    for r in rows:
+        if r['day'] == last_day:
+            symbol_last1d[r['symbol']] += float(r['volume']) if isinstance(r['volume'],(int,float,str)) else 0
+
     for fam_key, fam in ONDO_FAMILIES.items():
         total = sum(symbol_data[s]['total'] for s in fam['ondo'] if s in symbol_data)
         avg30 = sum(symbol_data[s]['last_30d'] for s in fam['ondo'] if s in symbol_data) / 30
         avg7 = sum(symbol_data[s]['last_7d'] for s in fam['ondo'] if s in symbol_data) / 7
+        vol_24h = sum(symbol_last1d[s] for s in fam['ondo'])
         if total > 0:
             families.append({
                 "family": fam_key,
@@ -213,6 +221,7 @@ def fetch_ondo_volumes():
                 "total_volume": round(total),
                 "avg_30d": round(avg30),
                 "avg_7d": round(avg7),
+                "vol_24h": round(vol_24h),
             })
     families.sort(key=lambda x: x['avg_30d'], reverse=True)
 
