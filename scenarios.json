@@ -11,20 +11,20 @@
   "base": {
     "label": "Base",
     "ratios": {
-      "commodities": 3,
-      "indices": 5,
+      "commodities": 1,
+      "indices": 3,
       "stocks": 8
     },
-    "total_daily": 69350259
+    "total_daily": 40000000
   },
   "bull": {
     "label": "Bull",
     "ratios": {
-      "commodities": 8,
-      "indices": 15,
-      "stocks": 20
+      "commodities": 3,
+      "indices": 8,
+      "stocks": 15
     },
-    "total_daily": 187977163
+    "total_daily": 93000000
   },
   "hip3_by_cat": {
     "commodities": {

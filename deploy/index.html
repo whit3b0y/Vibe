@@ -275,17 +275,81 @@ const ONDO_CACHE={"families":[{"family":"CRCLon","label":"CIRCLE","hip3_ticker":
 
 const RWA_TYPES={"SILVER":"commodity","GOLD":"commodity","PLATINUM":"commodity","CL":"commodity","BRENTOIL":"commodity","OIL":"commodity","WTI":"commodity","NATGAS":"commodity","COPPER":"commodity","USOIL":"commodity","XYZ100":"index","USA500":"index","US500":"index","USTECH":"index","SMALL2000":"index","EWY":"index","MAG7":"index","NVDA":"stock","TSLA":"stock","CRCL":"stock","COIN":"stock","BABA":"stock","HOOD":"stock","INTC":"stock","META":"stock","AMZN":"stock","MU":"stock","MSFT":"stock","PLTR":"stock","NFLX":"stock","AMD":"stock","GOOGL":"stock","AAPL":"stock","MSTR":"stock","AVGO":"stock","NUCLEAR":"sector","ENERGY":"sector","ANTHROPIC":"sector","ROBOT":"sector","SEMIS":"sector","BIOTECH":"sector","DEFENSE":"sector","INFOTECH":"sector","SPACEX":"sector","USBOND":"bond"};
 const SPOT_TIERS=[{"label":"Tier 0","taker":0.070,"maker":0.040},{"label":"Tier 1","taker":0.060,"maker":0.030},{"label":"Tier 2","taker":0.050,"maker":0.020},{"label":"Tier 3","taker":0.040,"maker":0.010},{"label":"Tier 4","taker":0.035,"maker":0.000}];
-const SCENARIOS={"bear":{"label":"Bear","ratios":{"commodity":1,"index":2,"stock":3},"arguments":["Ratio Ondo contraint: 0.4% commodities — bear juste au-dessus","Ratio HL crypto natif: 3.4% pour BTC/ETH/SOL","Risque execution: un seul MM, pas de track record spot RWA sur HL","Adoption lente, spreads larges, regulation incertaine"]},"base":{"label":"Base","ratios":{"commodity":3,"index":5,"stock":8},"arguments":["Stocks 8% conservateur vs ratio Ondo contraint deja 14.6%","Melt resout: No KYC, limit orders + Flowdesk MM, interface HL, 24/7","QQQ fait $6M/jour sur Ondo — demande organique prouvee","Commodities 3%: proches du ratio HL crypto"]},"bull":{"label":"Bull","ratios":{"commodity":8,"index":15,"stock":20},"arguments":["Ratio crypto global spot/perp 25% — 20% stocks encore en dessous","Melt = MONOPOLE spot RWA sur HL — 0 concurrence","Ratio Ondo stocks DEJA 14.6% AVEC KYC — 20% sans contraintes justifie","DeFi: delta-neutral, collateral, lending — volume additionnel"]}};
+const SCENARIOS={"bear":{"label":"Bear","ratios":{"commodity":1,"index":2,"stock":3},"arguments":["Ratio Ondo contraint: 0.4% commodities — bear juste au-dessus","Ratio HL crypto natif: 3.4% pour BTC/ETH/SOL","Risque execution: un seul MM, pas de track record spot RWA sur HL","Adoption lente, spreads larges, regulation incertaine"]},"base":{"label":"Base","ratios":{"commodity":1,"index":3,"stock":8},"arguments":["Stocks 8% conservateur vs ratio Ondo contraint deja 15%","Melt resout: No KYC, limit orders + Flowdesk MM, interface HL, 24/7","Indices 3%: proche du ratio Ondo actuel (2.4%) avec uplift modere via suppression contraintes","Commodities 1%: spot sans levier reste niche — x2.5 vs 0.4% actuel est deja significatif"]},"bull":{"label":"Bull","ratios":{"commodity":3,"index":8,"stock":15},"arguments":["Ratio Ondo stocks DEJA 15% AVEC KYC — 15% sans contraintes est coherent, pas agressif","Melt = MONOPOLE spot RWA sur HL — 0 concurrence","Indices 8%: QQQ fait deja $6M/jour sur Ondo, x3 via DeFi + 24/7 + no KYC","Commodities 3%: aligne avec ratio spot/perp crypto HL (3.4%) — plafond realiste","DeFi: delta-neutral, collateral, lending — volume additionnel"]}};
+const DUNE_API_KEY='nWErzCBnlM0uuaIT8xnJa7XJUUl8uT0C';
+const ONDO_FAM_MAP={
+  "NVDAon":{"hip3":"NVDA","ondo":["NVDAon"],"cat":"stock"},
+  "TSLAon":{"hip3":"TSLA","ondo":["TSLAon"],"cat":"stock"},
+  "CRCLon":{"hip3":"CRCL","ondo":["CRCLon"],"cat":"stock"},
+  "GOOGLon":{"hip3":"GOOGL","ondo":["GOOGLon"],"cat":"stock"},
+  "MSTRon":{"hip3":"MSTR","ondo":["MSTRon"],"cat":"stock"},
+  "MUon":{"hip3":"MU","ondo":["MUon"],"cat":"stock"},
+  "AAPLon":{"hip3":"AAPL","ondo":["AAPLon"],"cat":"stock"},
+  "COINon":{"hip3":"COIN","ondo":["COINon"],"cat":"stock"},
+  "BABAon":{"hip3":"BABA","ondo":["BABAon"],"cat":"stock"},
+  "AMZNon":{"hip3":"AMZN","ondo":["AMZNon"],"cat":"stock"},
+  "NFLXon":{"hip3":"NFLX","ondo":["NFLXon"],"cat":"stock"},
+  "AVGOon":{"hip3":"AVGO","ondo":["AVGOon"],"cat":"stock"},
+  "AMDon":{"hip3":"AMD","ondo":["AMDon"],"cat":"stock"},
+  "HOODon":{"hip3":"HOOD","ondo":["HOODon"],"cat":"stock"},
+  "PLTRon":{"hip3":"PLTR","ondo":["PLTRon"],"cat":"stock"},
+  "METAon":{"hip3":"META","ondo":["METAon"],"cat":"stock"},
+  "INTCon":{"hip3":"INTC","ondo":["INTCon"],"cat":"stock"},
+  "MSFTon":{"hip3":"MSFT","ondo":["MSFTon"],"cat":"stock"},
+  "QQQ":{"hip3":"XYZ100","ondo":["QQQon","TQQQon","SQQQon"],"cat":"index"},
+  "SPY":{"hip3":"USA500","ondo":["SPYon","IVVon"],"cat":"index"},
+  "SILVER":{"hip3":"SILVER","ondo":["SLVon"],"cat":"commodity"},
+  "GOLD":{"hip3":"GOLD","ondo":["GLDon","IAUon"],"cat":"commodity"},
+  "OIL":{"hip3":"CL","ondo":["USOon"],"cat":"commodity"},
+};
+
+async function fetchOndoLive(){
+  try{
+    const r=await fetch(`https://api.dune.com/api/v1/query/6372839/results?limit=5000`,{headers:{'X-Dune-API-Key':DUNE_API_KEY}});
+    const j=await r.json();
+    const rows=j.result.rows;
+    const days=Array.from(new Set(rows.map(r=>r.day))).sort().reverse();
+    const lastDay=days[0];
+    const last7=new Set(days.slice(0,7));
+    const last30=new Set(days.slice(0,30));
+    // Per-symbol aggregation
+    const sd={};
+    const dt={};
+    for(const r of rows){
+      const s=r.symbol,v=+r.volume||0;
+      if(!sd[s])sd[s]={total:0,last_1d:0,last_7d:0,last_30d:0};
+      sd[s].total+=v;
+      if(r.day===lastDay)sd[s].last_1d+=v;
+      if(last7.has(r.day))sd[s].last_7d+=v;
+      if(last30.has(r.day))sd[s].last_30d+=v;
+      dt[r.day]=(dt[r.day]||0)+v;
+    }
+    // Build families
+    const families=[];
+    for(const[fk,fm]of Object.entries(ONDO_FAM_MAP)){
+      const v24=fm.ondo.reduce((s,sym)=>(sd[sym]?.last_1d||0)+s,0);
+      const a30=fm.ondo.reduce((s,sym)=>(sd[sym]?.last_30d||0)+s,0)/30;
+      const a7=fm.ondo.reduce((s,sym)=>(sd[sym]?.last_7d||0)+s,0)/7;
+      const tot=fm.ondo.reduce((s,sym)=>(sd[sym]?.total||0)+s,0);
+      if(tot>0)families.push({family:fk,label:ONDO_CACHE.families.find(f=>f.family===fk)?.label||fk,hip3_ticker:fm.hip3,cat:fm.cat,total_volume:Math.round(tot),avg_30d:Math.round(a30),avg_7d:Math.round(a7),vol_24h:Math.round(v24)});
+    }
+    families.sort((a,b)=>b.avg_30d-a.avg_30d);
+    const daily=days.slice(0,60).map(d=>({day:d,volume:Math.round(dt[d]||0)}));
+    return {families,daily_totals:daily,date_range:{start:days[days.length-1],end:days[0]},lastDay};
+  }catch(e){console.warn('Dune fetch failed, using cache:',e);return null;}
+}
+
 async function init(){
-  document.body.innerHTML+='<div class="loading" id="loader">Fetching live HIP-3 + HL data...</div>';
+  document.body.innerHTML+='<div class="loading" id="loader">Fetching live HIP-3 + HL + Dune data...</div>';
   try{
     const HL='https://api.hyperliquid.xyz/info';
     const P={method:'POST',headers:{'Content-Type':'application/json'}};
     const dC=['xyz','flx','vntl','hyna','km','abcd','cash'];
     const dN=['XYZ','Felix','Ventuals','HyENA','Kinetiq','ABCDEx','dreamcash'];
-    const[hlP,hlS,...h3]=await Promise.all([
+    const[hlP,hlS,ondoLive,...h3]=await Promise.all([
       fetch(HL,{...P,body:JSON.stringify({type:'metaAndAssetCtxs'})}).then(r=>r.json()),
       fetch(HL,{...P,body:JSON.stringify({type:'spotMetaAndAssetCtxs'})}).then(r=>r.json()),
+      fetchOndoLive(),
       ...dC.map(d=>fetch(HL,{...P,body:JSON.stringify({type:'metaAndAssetCtxs',dex:d})}).then(r=>r.json()).catch(()=>null))
     ]);
     const pv={};let tp=0;
@@ -297,10 +361,13 @@ async function init(){
     for(const[tk,d]of Object.entries(at)){if(!RWA_TYPES[tk])continue;const t=RWA_TYPES[tk];rp.push({ticker:tk,type:t,vol24h:Math.round(d.t),dexes:Object.fromEntries(Object.entries(d.d).map(([k,v])=>[k,Math.round(v)]))});if(bc[t]!==undefined)bc[t]+=d.t;}
     rp.sort((a,b)=>b.vol24h-a.vol24h);
     const hm=Object.fromEntries(rp.map(p=>[p.ticker,p]));
+    // Use live Ondo data if available, otherwise cache
+    const ondoFams=ondoLive?ondoLive.families:ONDO_CACHE.families;
+    const ondoDaily=ondoLive?ondoLive.daily_totals:ONDO_CACHE.daily_totals;
     const oc={stock:0,index:0,commodity:0};
-    ONDO_CACHE.families.forEach(f=>{const m=hm[f.hip3_ticker]||{};f.perp_vol_24h=m.vol24h||0;f.perp_dexes=m.dexes||{};oc[f.cat]=(oc[f.cat]||0)+f.avg_30d;});
+    ondoFams.forEach(f=>{const m=hm[f.hip3_ticker]||{};f.perp_vol_24h=m.vol24h||0;f.perp_dexes=m.dexes||{};oc[f.cat]=(oc[f.cat]||0)+f.avg_30d;});
     const cr={};for(const c of['commodity','index','stock'])cr[c]=bc[c]>0?Math.round(oc[c]/bc[c]*10000)/100:0;
-    D={hl_ratios:{perp_vols:pv,total_perp:Math.round(tp),total_spot:Math.round(ts),ratio_hl:Math.round(ts/tp*10000)/100},hip3:{rwa_perps:rp,total_rwa_vol:rp.reduce((s,p)=>s+p.vol24h,0),by_category:Object.fromEntries(Object.entries(bc).map(([k,v])=>[k,Math.round(v)]))},ondo:{families:ONDO_CACHE.families,daily_totals:ONDO_CACHE.daily_totals,by_category:oc},spot_tiers:SPOT_TIERS,scenarios:SCENARIOS,current_ratios:cr};
+    D={hl_ratios:{perp_vols:pv,total_perp:Math.round(tp),total_spot:Math.round(ts),ratio_hl:Math.round(ts/tp*10000)/100},hip3:{rwa_perps:rp,total_rwa_vol:rp.reduce((s,p)=>s+p.vol24h,0),by_category:Object.fromEntries(Object.entries(bc).map(([k,v])=>[k,Math.round(v)]))},ondo:{families:ondoFams,daily_totals:ondoDaily,by_category:oc,live:!!ondoLive,lastDay:ondoLive?.lastDay||'cache'},spot_tiers:SPOT_TIERS,scenarios:SCENARIOS,current_ratios:cr};
   }catch(e){document.getElementById('loader').textContent='Error: '+e.message;return;}
   document.getElementById('loader')?.remove();
   renderAll();

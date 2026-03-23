@@ -79,23 +79,23 @@ SCENARIOS = {
     },
     "base": {
         "label": "Base",
-        "ratios": {"commodity": 3, "index": 5, "stock": 8},
+        "ratios": {"commodity": 1, "index": 3, "stock": 8},
         "arguments": [
-            "Les stocks ont un ratio Ondo spot/HIP-3 perp DÉJÀ à 14.6% malgré les contraintes → 8% est conservateur",
-            "Melt résout les contraintes: No KYC (×2-3x TAM), limit orders + Flowdesk MM, interface HL, 24/7, composabilité DeFi",
-            "Les indices (QQQ $6M/jour sur Ondo) prouvent une demande organique à 5% du perp",
-            "Les commodities restent à 3% car dominées par la spéculation levier — le spot sans levier attire moins",
+            "Les stocks ont un ratio Ondo spot/HIP-3 perp DÉJÀ à 15% malgré les contraintes → 8% est conservateur",
+            "Melt résout les contraintes: No KYC (×2-3x TAM), limit orders + Flowdesk MM, interface HL, 24/7",
+            "Indices à 3%: proche du ratio Ondo actuel (2.4%) avec un uplift modéré via la suppression des contraintes",
+            "Commodities à 1%: le spot sans levier reste niche — ×2.5 vs le 0.4% actuel est déjà un uplift significatif",
         ],
     },
     "bull": {
         "label": "Bull",
-        "ratios": {"commodity": 8, "index": 15, "stock": 20},
+        "ratios": {"commodity": 3, "index": 8, "stock": 15},
         "arguments": [
-            "Le ratio crypto global spot/perp est à 25% — 20% stocks est encore en dessous sur un marché mature",
+            "Le ratio Ondo stocks est DÉJÀ à 15% AVEC KYC — 15% sans contraintes est cohérent, pas agressif",
             "Melt = MONOPOLE spot RWA sur HL — pas de concurrence contrairement au BTC spot (100+ exchanges)",
-            "Le ratio Ondo stocks est DÉJÀ à 14.6% AVEC KYC → 20% sans contraintes est justifié",
-            "Effets réseau DeFi: delta-neutral, spot comme collateral perp, lending, yield → volume additionnel",
-            "Le marché tokenized stocks a fait ×30 en 2025 — les perp HIP-3 vont aussi croître → le base absolu augmente",
+            "Indices à 8%: QQQ fait déjà $6M/jour sur Ondo, ×3 via DeFi composabilité + 24/7 + no KYC",
+            "Commodities à 3%: aligné avec le ratio spot/perp crypto HL (3.4%) — plafond réaliste",
+            "Effets réseau DeFi: delta-neutral, spot comme collateral perp, lending → volume additionnel",
         ],
     },
 }
