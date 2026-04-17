@@ -21,7 +21,8 @@
       "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H \"Content-Type: application/json\" -d '{\"\"\"\"type\"\"\"\":\"\"\"\"spotMetaAndAssetCtxs\"\"\"\"}')",
       "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H \"Content-Type: application/json\" -d '{\"\"\"\"type\"\"\"\":\"\"\"\"spotMeta\"\"\"\"}')",
       "Bash(python3)",
-      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H 'Content-Type: application/json' -d '{\"\"\"\"type\"\"\"\":\"\"\"\"metaAndAssetCtxs\"\"\"\"}')"
+      "Bash(curl -s -X POST https://api.hyperliquid.xyz/info -H 'Content-Type: application/json' -d '{\"\"\"\"type\"\"\"\":\"\"\"\"metaAndAssetCtxs\"\"\"\"}')",
+      "Bash(git fetch *)"
     ]
   }
 }
